@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Alarm &amp; Lock</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="screen">
+    <!-- App bar top and Status bar - iOS -->
+    <header class="app-bar">
+      <div class="status-bar">
+        <img class="status-bar__time" src="assets/icons/status-time.svg" alt="9:41" />
+        <img class="status-bar__icons" src="assets/icons/status-icons.svg" alt="" />
+      </div>
+      <nav class="nav-bar">
+        <button class="icon-button" type="button" aria-label="Back" id="back-button">
+          <img src="assets/icons/chevron-left.svg" alt="" />
+        </button>
+        <h1 class="nav-bar__title">Alarm &amp; Lock</h1>
+        <img class="nav-bar__divider" src="assets/icons/divider-line-appbar.svg" alt="" />
+      </nav>
+    </header>
+
+    <main class="content">
+      <!-- Current alarm / door status -->
+      <section class="status-overview" aria-label="Current status">
+        <div class="status-item">
+          <img class="status-item__icon" src="assets/icons/motion-sensor-cab-disabled.svg" alt="" />
+          <p class="status-item__label"><strong>Alarm:</strong> <span>off</span></p>
+          <span class="tag">
+            <img class="tag__icon" src="assets/icons/checkmark-circle.svg" alt="" />
+            <span>Today, 09:41</span>
+          </span>
+        </div>
+        <div class="status-item">
+          <img class="status-item__icon" src="assets/icons/lock-unlocked.svg" alt="" />
+          <p class="status-item__label"><strong>Doors:</strong> <span>unlocked</span></p>
+          <span class="tag">
+            <img class="tag__icon" src="assets/icons/checkmark-circle.svg" alt="" />
+            <span>Today, 09:41</span>
+          </span>
+        </div>
+      </section>
+
+      <!-- Event history, rendered from data in app.js -->
+      <div class="history" id="history"></div>
+    </main>
+
+    <div class="home-indicator" aria-hidden="true"><span></span></div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
