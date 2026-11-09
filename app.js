@@ -11,29 +11,6 @@ const historyGroups = [
       { icon: "speaker-panic-alarm.svg", title: "Panic Alarm has been activated", meta: "Tuesday • 03:09" },
     ],
   },
-  {
-    label: "Last week",
-    items: [
-      { icon: "front-grill-open.svg", title: "Engine hatch has been opened", meta: "2020-09-02 • 14:04" },
-    ],
-  },
-  {
-    label: "Last week",
-    items: [
-      {
-        icon: "motion-sensor-trailer-shape.svg",
-        iconClass: "icon-shape--trailer",
-        title: "Alarm has been triggered in a connected trailer",
-        meta: "2020-07-30 • 04:04",
-      },
-    ],
-  },
-  {
-    label: "Older",
-    items: [
-      { icon: "cab-tilt-warning.svg", title: "Cab has been tilted", meta: "2020-05-06 • 17:59" },
-    ],
-  },
 ];
 
 function el(tag, className, text) {
