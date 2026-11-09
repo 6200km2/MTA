@@ -1,6 +1,5 @@
 /*
- * Alarm & Lock screen (Figma "My truck" › Keyviews, node 1:18814).
- * The Figma frame is drawn at 2x (786px wide); values here are 1x (CSS px = iOS points).
+ * Alarm & Lock screen (Figma "My truck", node 1:20910; 430px wide, 1x).
  */
 
 :root {
@@ -15,13 +14,14 @@
   --radius-default: 4px;
   --radius-large: 8px;
 
-  /* typography (Volvo Novum in the design; falls back to the system font) */
-  --font-family: "Volvo Novum", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  /* typography (SF Pro in the design = the Apple system font) */
+  --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Helvetica Neue", Arial, sans-serif;
   --body-size: 16px;
   --body-line-height: 24px;
+  --body-letter-spacing: -0.3125px;
   --caption-size: 14px;
   --caption-line-height: 20px;
-  --caption-letter-spacing: 0.14px;
+  --caption-letter-spacing: -0.0104px;
 
   /* layout */
   --page-gutter: 25px;
@@ -119,6 +119,7 @@ img {
   font-size: 16px;
   line-height: 24px;
   font-weight: 700;
+  letter-spacing: var(--body-letter-spacing);
   white-space: nowrap;
 }
 
@@ -135,6 +136,20 @@ img {
 
 .content {
   flex: 1;
+}
+
+/* Status display only: the icons, labels and tags are not tappable. */
+.status-overview {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  cursor: default;
+}
+
+.status-overview img {
+  pointer-events: none;
+  -webkit-user-drag: none;
 }
 
 .status-overview {
@@ -161,6 +176,7 @@ img {
 .status-item__label {
   font-size: var(--body-size);
   line-height: var(--body-line-height);
+  letter-spacing: var(--body-letter-spacing);
   white-space: nowrap;
 }
 
@@ -262,6 +278,7 @@ img {
 .list-item__title {
   font-size: var(--body-size);
   line-height: var(--body-line-height);
+  letter-spacing: var(--body-letter-spacing);
 }
 
 .list-item__meta {
