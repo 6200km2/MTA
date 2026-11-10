@@ -9,6 +9,25 @@
   --color-surface-tag: #ededed;
   --color-text-primary: #212121;
   --color-text-secondary: #575757;
+  /* Color meaning (mentor feedback, as in the Volvo Trucks app):
+     red   = serious danger to people or the truck only (not used on this screen),
+     amber = the system knows what the user tried and it failed (a remote command, reaching the truck),
+     neutral info box (like the DS Admonition) = advice without a known intent ("Close and lock it…").
+     Door marks and sensor waves use ink / icon gray, not a status color. */
+  --color-text-warning: #b3261e;
+  --color-door-mark: var(--color-text-primary);
+  /* Warning box, same amber as warnings in the Volvo Trucks app ("Antal problem: 1") */
+  --color-surface-warning: #f5be4f;
+  /* Amber dot / ring for unchecked events: darker than the box so it reads on white (3:1+) */
+  --color-attention-mark: #b07400;
+  /* Icon gray used by the Volvo DS icons (e.g. Motion Sensor Cab) */
+  --color-icon: #6b6b6b;
+  --color-divider: #e1e1e1;
+  --color-button-primary: #212121;
+  --color-button-primary-text: #ffffff;
+  /* Text on the amber warning box stays dark in both themes */
+  --color-on-warning: #212121;
+  --color-pressed: rgba(20, 20, 20, 0.08);
 
   /* radius */
   --radius-default: 4px;
@@ -25,6 +44,44 @@
 
   /* layout */
   --page-gutter: 25px;
+}
+
+/* ---------- Night mode ----------
+   Follows the phone's dark mode; ?theme=dark or ?theme=light overrides it (set by app.js).
+   Dark colors follow the Volvo Trucks app at night: near-black background, dark cards,
+   light text, amber warning box unchanged. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-background-default: #141414;
+  --color-surface-card: #232323;
+  --color-surface-tag: #2e2e2e;
+  --color-text-primary: #f2f2f2;
+  --color-text-secondary: #b0b0b0;
+  --color-text-warning: #ff7a6e;
+  --color-icon: #a3a3a3;
+  --color-divider: #333333;
+  --color-button-primary: #f2f2f2;
+  --color-button-primary-text: #141414;
+  --color-pressed: rgba(255, 255, 255, 0.12);
+  --color-attention-mark: #f5be4f;
+}
+
+/* The exported SVG icons have fixed light-mode colors: flip them for the dark background */
+:root[data-theme="dark"] .status-bar img,
+:root[data-theme="dark"] .icon-button img,
+:root[data-theme="dark"] .list-item__icon img,
+:root[data-theme="dark"] .tag__icon {
+  filter: invert(1);
+}
+
+:root[data-theme="dark"] .nav-bar__divider,
+:root[data-theme="dark"] .list-item__divider {
+  filter: brightness(0.24);
+}
+
+/* Line drawing: slightly softer so it doesn't glow on black */
+:root[data-theme="dark"] [data-view="line"] .status-hero__image {
+  opacity: 0.8;
 }
 
 *,
@@ -103,7 +160,7 @@ img {
 }
 
 .icon-button:active {
-  background: rgba(20, 20, 20, 0.08);
+  background: var(--color-pressed);
 }
 
 .icon-button img {
@@ -132,14 +189,55 @@ img {
   height: 1px;
 }
 
-/* ---------- Status overview ---------- */
+/* ---------- Tabs (Alarm / Doors) ---------- */
+
+.tabs {
+  display: flex;
+  padding: 0 var(--page-gutter);
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.tabs__tab {
+  flex: 1;
+  height: 48px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font: inherit;
+  font-size: var(--body-size);
+  line-height: var(--body-line-height);
+  letter-spacing: var(--body-letter-spacing);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tabs__tab[aria-selected="true"] {
+  border-bottom-color: var(--color-text-primary);
+  color: var(--color-text-primary);
+  font-weight: 700;
+}
+
+.tabs__tab:focus-visible {
+  outline: 2px solid var(--color-text-primary);
+  outline-offset: -4px;
+  border-radius: 4px;
+}
+
+/* ---------- Status hero (display only, not tappable) ---------- */
 
 .content {
   flex: 1;
 }
 
-/* Status display only: the icons, labels and tags are not tappable. */
-.status-overview {
+.status-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding-bottom: 16px;
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
@@ -147,40 +245,272 @@ img {
   cursor: default;
 }
 
-.status-overview img {
+.status-hero img {
   pointer-events: none;
   -webkit-user-drag: none;
 }
 
-.status-overview {
-  display: flex;
-  justify-content: center;
-  gap: 48px;
-  margin-top: 32px;
-  padding: 8px 0;
+/* The truck image area can be swiped sideways to switch tabs; vertical scroll still works. */
+.status-hero--truck {
+  touch-action: pan-y;
 }
 
-.status-item {
-  width: 160px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
+.tab-panel[data-enter="right"] {
+  animation: panel-in-right 0.25s ease-out;
 }
 
-.status-item__icon {
-  width: 72px;
-  height: 72px;
+.tab-panel[data-enter="left"] {
+  animation: panel-in-left 0.25s ease-out;
 }
 
-.status-item__label {
+@keyframes panel-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(32px);
+  }
+}
+
+@keyframes panel-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-32px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab-panel[data-enter] {
+    animation: none;
+  }
+}
+
+.status-hero__image {
+  object-fit: cover;
+}
+
+/* Truck sizes from Figma: photo 24:6624, line drawing 24:6658 */
+.status-hero--truck[data-view="photo"] {
+  /* tighter: the photo version also has the alarm button and must still fit one screen */
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+/* A button row right above the history: less gap */
+.action-slot:not(:empty) + .history {
+  margin-top: 12px;
+}
+
+.status-hero--truck[data-view="photo"] .status-hero__image {
+  width: 236.5px;
+  height: 354.5px;
+}
+
+/* ?truck=cab: the line drawing zoomed in on the cab. Shows the image area x 60-964, y 0-760
+   (of 1024 x 1536): cab, mirrors, seats, bunk and room for an open door to swing out.
+   The image and its overlay keep the full-image size and move together, the figure clips them. */
+.status-hero--truck[data-view="cab"] {
+  padding-top: 24px;
+}
+
+[data-view="cab"] .door-figure {
+  width: 340px;
+  height: 286px;
+  overflow: hidden;
+}
+
+[data-view="cab"] .door-figure .status-hero__image,
+[data-view="cab"] .door-figure .door-overlay {
+  position: absolute;
+  left: -22.6px; /* 60 x 0.376 */
+  top: 0;
+  width: 385px; /* 1024 x 0.376 */
+  height: 577.5px; /* 1536 x 0.376 */
+  max-width: none;
+}
+
+:root[data-theme="dark"] [data-view="cab"] .status-hero__image {
+  opacity: 0.8;
+}
+
+.status-hero--truck[data-view="line"] {
+  padding-top: 24px;
+}
+
+.status-hero--truck[data-view="line"] .status-hero__image {
+  width: 241px;
+  height: 362px;
+}
+
+.status-hero__label {
+  margin-top: 12px;
+  padding: 0 var(--page-gutter);
+  text-align: center;
   font-size: var(--body-size);
   line-height: var(--body-line-height);
   letter-spacing: var(--body-letter-spacing);
-  white-space: nowrap;
 }
 
-.status-item__label strong {
+
+.status-hero[data-stale="true"] .status-hero__image,
+.status-hero[data-stale="true"] .door-overlay {
+  opacity: 0.4;
+}
+
+/* ---------- Simple layout (no truck image) ----------
+   One status icon per tab, then the same heading, time stamp and direction. */
+.status-icon {
+  display: none;
+  width: 72px;
+  height: 72px;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+:root[data-layout="simple"] .status-icon {
+  display: block;
+}
+
+:root[data-layout="simple"] .door-figure {
+  display: none;
+}
+
+:root[data-layout="simple"] .status-hero--truck {
+  padding-top: 32px;
+}
+
+:root[data-layout="simple"] .status-hero__label {
+  margin-top: 8px;
+}
+
+:root[data-theme="dark"] .status-icon {
+  filter: invert(1);
+}
+
+/* ---------- Door overlay on the truck line drawing ---------- */
+
+.door-figure {
+  position: relative;
+}
+
+.door-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* Alarm on: sensor waves in the cab, same gray and stroke feel as the DS sensor icons.
+   They blink outward one after another (inner, middle, outer) like a sensor pulse. */
+.alarm-wave {
+  fill: none;
+  stroke: var(--color-icon);
+  stroke-width: 8;
+  stroke-linecap: round;
+  opacity: 0;
+  animation: wave-blink 1.8s ease-in-out infinite;
+}
+
+.alarm-wave--2 {
+  animation-delay: 0.3s;
+}
+
+.alarm-wave--3 {
+  animation-delay: 0.6s;
+}
+
+.alarm-wave__dot {
+  fill: var(--color-icon);
+}
+
+/* Alarm off: faint still waves with a slash, like the DS "Motion Sensor Cab Disabled" icon */
+.alarm-wave--off {
+  animation: none;
+  opacity: 0.35;
+}
+
+.alarm-slash {
+  stroke: var(--color-icon);
+  stroke-width: 10;
+  stroke-linecap: round;
+}
+
+/* Knock-out behind the slash so it reads as a cut through the waves */
+.alarm-slash__gap {
+  stroke: var(--color-background-default);
+  stroke-width: 26;
+  stroke-linecap: round;
+}
+
+/* Unknown (checking / couldn't reach the truck): a question mark instead of waves */
+.alarm-unknown__ring {
+  fill: var(--color-background-default);
+  stroke: var(--color-icon);
+  stroke-width: 8;
+}
+
+.alarm-unknown__mark {
+  fill: var(--color-icon);
+  font: 700 72px var(--font-family);
+}
+
+/* The question mark is the state itself: keep it at full strength when the image is dimmed */
+.status-hero[data-stale="true"] .door-overlay:has(.alarm-unknown__mark) {
+  opacity: 1;
+}
+
+/* On the photo the cab floor is dark: light waves */
+[data-view="photo"] .alarm-wave {
+  stroke: #ffffff;
+}
+
+[data-view="photo"] .alarm-wave__dot {
+  fill: #ffffff;
+}
+
+[data-view="photo"] .alarm-slash {
+  stroke: #ffffff;
+}
+
+[data-view="photo"] .alarm-slash__gap {
+  stroke: #2b2b2b;
+}
+
+@keyframes wave-blink {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  60% {
+    opacity: 0;
+  }
+}
+
+/* No blinking for people who turn off motion: steady waves, fading outward */
+@media (prefers-reduced-motion: reduce) {
+  .alarm-wave {
+    animation: none;
+    opacity: 1;
+  }
+  .alarm-wave--2 {
+    opacity: 0.7;
+  }
+  .alarm-wave--3 {
+    opacity: 0.4;
+  }
+}
+
+/* Unlocked door (edge) or open door (swung-out leaf): one plain line in ink (not red: no danger) */
+.door-overlay__line {
+  stroke: var(--color-door-mark);
+  stroke-width: 14;
+  stroke-linecap: round;
+}
+
+.status-hero__label strong {
   font-weight: 700;
 }
 
@@ -195,12 +525,281 @@ img {
   font-size: var(--caption-size);
   line-height: var(--caption-line-height);
   letter-spacing: var(--caption-letter-spacing);
-  white-space: nowrap;
+  text-align: left;
 }
 
 .tag__icon {
+  flex-shrink: 0;
   width: 16px;
   height: 16px;
+}
+
+/* ---------- Connection check (checked / checking / failed) ---------- */
+
+.check {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 0 var(--page-gutter);
+}
+
+/* The app tried to reach the truck for the user and failed: amber */
+.tag--failed {
+  background: var(--color-surface-warning);
+  color: var(--color-on-warning);
+}
+
+.check__stale {
+  max-width: 280px;
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: var(--caption-size);
+  line-height: var(--caption-line-height);
+  letter-spacing: var(--caption-letter-spacing);
+}
+
+.spinner {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  margin: 1px;
+  border: 2px solid var(--color-divider);
+  border-top-color: var(--color-text-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 2.4s;
+  }
+}
+
+.alert-mark {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-on-warning);
+  color: var(--color-surface-warning);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.text-button {
+  padding: 4px 8px;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-primary);
+  font: inherit;
+  font-size: var(--caption-size);
+  line-height: var(--caption-line-height);
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ---------- Direction line (what to do next) ---------- */
+
+/* Under the stamp: a card the width of the lists, with an X to dismiss it */
+.direction {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0 var(--page-gutter) 16px;
+  padding: 2px 2px 2px 14px;
+  border-radius: var(--radius-large);
+  background: var(--color-surface-card);
+}
+
+/* Neutral info icon, like the DS Admonition (info state) */
+.direction::before {
+  content: "i";
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-top: 12px;
+  border: 1.5px solid var(--color-text-secondary);
+  border-radius: 50%;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+  font-style: normal;
+  line-height: 1;
+}
+
+.direction[hidden] {
+  display: none;
+}
+
+.direction__text {
+  flex: 1;
+  padding: 10px 0;
+  font-size: var(--body-size);
+  line-height: var(--body-line-height);
+  letter-spacing: var(--body-letter-spacing);
+}
+
+/* Advice is never amber now (the system doesn't know the user's intent): urgent and normal
+   directions both use the neutral info box. */
+
+/* 40px tap area around a 16px X (the card padding adds to it) */
+.direction__close {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 99px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.direction__close:active {
+  background: var(--color-pressed);
+}
+
+.direction__close:focus-visible {
+  outline: 2px solid var(--color-text-primary);
+  outline-offset: -4px;
+}
+
+/* ---------- Action slot (remote lock / alarm, or how to do it at the truck) ---------- */
+
+.action-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 0 var(--page-gutter);
+}
+
+.action-slot:empty {
+  display: none;
+}
+
+.action-note {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: var(--radius-large);
+  background: var(--color-surface-card);
+  color: var(--color-text-secondary);
+  font-size: var(--caption-size);
+  line-height: var(--caption-line-height);
+  letter-spacing: var(--caption-letter-spacing);
+}
+
+.action-note strong {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+/* A command the user sent failed: the one place amber is used */
+.action-note--failed {
+  background: var(--color-surface-warning);
+  color: var(--color-on-warning);
+}
+
+.action-note--failed strong {
+  color: var(--color-on-warning);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.button {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 12px 16px;
+  border: 1px solid var(--color-button-primary);
+  border-radius: var(--radius-large);
+  background: var(--color-button-primary);
+  color: var(--color-button-primary-text);
+  font: inherit;
+  font-size: var(--body-size);
+  line-height: var(--body-line-height);
+  letter-spacing: var(--body-letter-spacing);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.button--secondary {
+  background: transparent;
+  color: var(--color-button-primary);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.button .spinner {
+  border-color: rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+}
+
+.history__empty {
+  padding: 16px;
+  border-radius: var(--radius-large);
+  background: var(--color-surface-card);
+  color: var(--color-text-secondary);
+  font-size: var(--caption-size);
+  line-height: var(--caption-line-height);
+}
+
+/* ---------- Alternative C: alarm + doors on one screen ---------- */
+
+.tabs[hidden] {
+  display: none;
+}
+
+#combined-hero {
+  padding-top: 12px;
+  padding-bottom: 8px;
+}
+
+.status-list {
+  margin: 0 var(--page-gutter) 16px;
+}
+
+.status-row__value {
+  flex-shrink: 0;
+  max-width: 55%;
+  text-align: right;
+  font-size: var(--body-size);
+  line-height: var(--body-line-height);
+  letter-spacing: var(--body-letter-spacing);
+  font-weight: 600;
+}
+
+#panel-combined .history {
+  margin-top: 0;
 }
 
 /* ---------- History list ---------- */
@@ -210,7 +809,11 @@ img {
   flex-direction: column;
   gap: 32px;
   margin-top: 16px;
-  padding: 0 var(--page-gutter) 32px;
+  padding: 0 var(--page-gutter) 16px;
+}
+
+.history + .history {
+  margin-top: 0;
 }
 
 .list-group {
@@ -288,10 +891,373 @@ img {
   letter-spacing: var(--caption-letter-spacing);
 }
 
+/* ---------- The truck as the alarm button (photo version) ---------- */
+
+.status-hero__heading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.status-hero__heading .status-hero__label {
+  margin-top: 0;
+  padding: 0;
+}
+
+.truck-button {
+  border-radius: 24px;
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.15s ease;
+}
+
+.truck-button:active:not([aria-disabled="true"]) {
+  transform: scale(0.97);
+}
+
+.truck-button:focus-visible {
+  outline: 2px solid var(--color-text-primary);
+  outline-offset: 6px;
+}
+
+.truck-button[aria-disabled="true"] {
+  cursor: default;
+}
+
+/* What a tap does, under the sensor spot (on the bunk, below the cab sensor) */
+.truck-hint {
+  position: absolute;
+  left: 50%;
+  top: 39%;
+  transform: translateX(-50%);
+  padding: 2px 10px;
+  border-radius: 99px;
+  background: rgba(20, 20, 20, 0.78);
+  color: #ffffff;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.truck-hint[hidden] {
+  display: none;
+}
+
+/* First-visit popup: a bubble under the sensor spot with an arrow pointing up at it */
+.status-hero {
+  position: relative;
+}
+
+.coach {
+  position: absolute;
+  top: 150px;
+  left: 50%;
+  z-index: 2;
+  width: 250px;
+  transform: translateX(-50%);
+  padding: 12px 14px;
+  border-radius: var(--radius-large);
+  background: var(--color-text-primary);
+  color: var(--color-background-default);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  user-select: text;
+}
+
+.coach[hidden] {
+  display: none;
+}
+
+.coach::before {
+  content: "";
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  background: inherit;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.coach__text {
+  font-size: var(--caption-size);
+  line-height: var(--caption-line-height);
+  letter-spacing: var(--caption-letter-spacing);
+}
+
+.coach__ok {
+  display: block;
+  margin: 8px 0 0 auto;
+  padding: 4px 12px;
+  border: 0;
+  border-radius: 99px;
+  background: var(--color-background-default);
+  color: var(--color-text-primary);
+  font: inherit;
+  font-size: var(--caption-size);
+  line-height: var(--caption-line-height);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.coach__ok:focus-visible {
+  outline: 2px solid var(--color-background-default);
+  outline-offset: 2px;
+}
+
+/* Alarm off: a soft ring breathing on the cab's sensor spot = "touch here" */
+.alarm-tap {
+  fill: rgba(255, 255, 255, 0.12);
+  stroke: #ffffff;
+  stroke-width: 6;
+  animation: tap-breathe 2.4s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@keyframes tap-breathe {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+}
+
+/* Waiting for the truck: a turning arc on the same spot */
+.alarm-busy {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-dasharray: 90 200;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: spin 0.9s linear infinite;
+}
+
+.truck-button[data-working] .status-hero__image {
+  opacity: 0.85;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .truck-button {
+    transition: none;
+  }
+  .alarm-tap {
+    animation: none;
+    opacity: 0.7;
+  }
+  .alarm-busy {
+    animation-duration: 2.4s;
+  }
+}
+
+/* ---------- Unchecked events (icon layout only) ---------- */
+
+.list-group__label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* "1 to check" next to the Recent label */
+.list-group__badge {
+  padding: 0 8px;
+  border-radius: 99px;
+  background: var(--color-surface-warning);
+  color: var(--color-on-warning);
+  font-size: 12px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+/* Unchecked row: amber dot before the title, title in bold */
+.list-item__content--unchecked .list-item__title {
+  font-weight: 600;
+}
+
+.list-item__content--unchecked .list-item__title::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin: 0 8px 2px 0;
+  border-radius: 50%;
+  background: var(--color-attention-mark);
+  vertical-align: middle;
+}
+
+/* Check button on the right: empty circle = not checked yet, filled with a tick = checked */
+.check-toggle {
+  flex-shrink: 0;
+  position: relative;
+  width: 44px;
+  height: 44px;
+  margin: -6px -10px -6px 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+
+.check-toggle::before {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  border: 2px solid var(--color-attention-mark);
+  border-radius: 50%;
+}
+
+.check-toggle[aria-pressed="true"]::before {
+  border-color: var(--color-icon);
+  background: var(--color-icon);
+}
+
+.check-toggle[aria-pressed="true"]::after {
+  content: "";
+  position: absolute;
+  left: 18px;
+  top: 15px;
+  width: 7px;
+  height: 12px;
+  border-right: 2px solid var(--color-surface-card);
+  border-bottom: 2px solid var(--color-surface-card);
+  transform: rotate(45deg);
+}
+
+.check-toggle:focus-visible {
+  outline: 2px solid var(--color-text-primary);
+  outline-offset: -2px;
+}
+
+/* ?history=split: "See all history" as its own row below the Recent card */
+.history-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: var(--radius-large);
+  background: var(--color-surface-card);
+  color: var(--color-text-primary);
+  font: inherit;
+  font-size: var(--body-size);
+  line-height: var(--body-line-height);
+  letter-spacing: var(--body-letter-spacing);
+  text-align: left;
+  cursor: pointer;
+}
+
+.history-link::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  margin-right: 4px;
+  border-top: 1.5px solid var(--color-text-secondary);
+  border-right: 1.5px solid var(--color-text-secondary);
+  transform: rotate(45deg);
+}
+
+.history-link:active {
+  background: var(--color-pressed);
+}
+
+.history-link:focus-visible {
+  outline: 2px solid var(--color-text-primary);
+  outline-offset: 2px;
+}
+
+/* The Recent card sits closer to its "See all" row than to other groups */
+.history .list-group + .history-link {
+  margin-top: -16px;
+}
+
+/* Full history page, over the tab content */
+.history-page {
+  /* below the (drawn) iOS status bar, over everything else */
+  position: fixed;
+  inset: 54px 0 0 0;
+  z-index: 10;
+  max-width: 430px;
+  margin: 0 auto;
+  overflow-y: auto;
+  background: var(--color-background-default);
+}
+
+.history-page[hidden] {
+  display: none;
+}
+
+.history-page .nav-bar__title {
+  margin: 0;
+}
+
+body.is-history-open {
+  overflow: hidden;
+}
+
+:root[data-theme="dark"] .history-page .icon-button img {
+  filter: invert(1);
+}
+
+:root[data-theme="dark"] .history-page .nav-bar__divider {
+  filter: brightness(0.24);
+}
+
+/* "See all history" row at the bottom of the list card */
+.list-more {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 16px 12px 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-primary);
+  font: inherit;
+  font-size: var(--caption-size);
+  line-height: var(--caption-line-height);
+  letter-spacing: var(--caption-letter-spacing);
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.list-more::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  margin-right: 4px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+}
+
+.list-more[aria-expanded="true"]::after {
+  transform: rotate(-135deg);
+}
+
+.list-more:focus-visible {
+  outline: 2px solid var(--color-text-primary);
+  outline-offset: -4px;
+}
+
 .list-item__divider {
   width: 100%;
   height: 1px;
 }
+
 
 /* ---------- Home indicator ---------- */
 

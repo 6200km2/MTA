@@ -3,8 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
   <title>Alarm &amp; Lock</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=20261110n" />
 </head>
 <body>
   <div class="screen">
@@ -21,36 +22,109 @@
         <h1 class="nav-bar__title">Alarm &amp; Lock</h1>
         <img class="nav-bar__divider" src="assets/icons/divider-line-appbar.svg" alt="" />
       </nav>
+      <div class="tabs" role="tablist" aria-label="Alarm and doors">
+        <button class="tabs__tab" type="button" role="tab" id="tab-alarm" aria-controls="panel-alarm" aria-selected="true">Alarm</button>
+        <button class="tabs__tab" type="button" role="tab" id="tab-doors" aria-controls="panel-doors" aria-selected="false" tabindex="-1">Doors</button>
+      </div>
     </header>
 
     <main class="content">
-      <!-- Current alarm / door status -->
-      <section class="status-overview" aria-label="Current status">
-        <div class="status-item">
-          <img class="status-item__icon" src="assets/icons/motion-sensor-cab-disabled.svg" alt="" draggable="false" />
-          <p class="status-item__label"><strong>Alarm:</strong> <span>off</span></p>
-          <span class="tag">
-            <img class="tag__icon" src="assets/icons/checkmark-circle.svg" alt="" draggable="false" />
-            <span>Today, 09:41</span>
-          </span>
+      <!-- Alarm tab: the same truck line drawing as Doors (Figma 24:6658).
+           Alarm on = sensor waves inside the cab; alarm off = no waves. -->
+      <section class="tab-panel" role="tabpanel" id="panel-alarm" aria-labelledby="tab-alarm">
+        <div class="status-hero status-hero--truck" id="alarm-hero" data-view="line">
+          <!-- Simple layout (?layout=simple): one Volvo DS status icon instead of the truck image -->
+          <img class="status-icon" id="alarm-icon" src="" alt="" draggable="false" />
+          <!-- Photo version: the truck itself is the alarm on/off button (set up by app.js) -->
+          <div class="door-figure" id="alarm-figure">
+            <img class="status-hero__image" id="alarm-image" src="assets/images/truck-top-line.png" alt="" draggable="false" />
+            <svg class="door-overlay" id="alarm-overlay" viewBox="0 0 1024 1536" aria-hidden="true" focusable="false"></svg>
+            <!-- Photo version: what tapping the truck does ("Tap to turn on"), under the sensor spot -->
+            <span class="truck-hint" id="alarm-hint" aria-hidden="true" hidden></span>
+          </div>
+          <!-- Photo version, first visit: explains that the truck is the alarm button -->
+          <div class="coach" id="alarm-coach" role="dialog" aria-labelledby="alarm-coach-text" hidden>
+            <p class="coach__text" id="alarm-coach-text"><strong>Tap the truck</strong> to turn the alarm on or off.</p>
+            <button class="coach__ok" type="button" id="alarm-coach-ok">Got it</button>
+          </div>
+          <div class="status-hero__heading">
+            <p class="status-hero__label"><strong>Alarm:</strong> <span id="alarm-state"></span></p>
+          </div>
+          <div class="check" id="alarm-check" aria-live="polite"></div>
         </div>
-        <div class="status-item">
-          <img class="status-item__icon" src="assets/icons/lock-unlocked.svg" alt="" draggable="false" />
-          <p class="status-item__label"><strong>Doors:</strong> <span>unlocked</span></p>
-          <span class="tag">
-            <img class="tag__icon" src="assets/icons/checkmark-circle.svg" alt="" draggable="false" />
-            <span>Today, 09:41</span>
-          </span>
+        <!-- Direction line: what to do next, only when needed. Sits under the stamp. -->
+        <div class="direction" id="alarm-direction" hidden>
+          <p class="direction__text" id="alarm-direction-text"></p>
+          <button class="direction__close" type="button" id="alarm-direction-close" aria-label="Dismiss">
+            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
+          </button>
         </div>
+        <div class="action-slot" id="alarm-action" aria-live="polite"></div>
+        <div class="history" id="history-alarm"></div>
       </section>
 
-      <!-- Event history, rendered from data in app.js -->
-      <div class="history" id="history"></div>
+      <!-- Doors tab: door lock state only, on the truck line drawing (Figma 24:6658). -->
+      <section class="tab-panel" role="tabpanel" id="panel-doors" aria-labelledby="tab-doors" hidden>
+        <div class="status-hero status-hero--truck" id="doors-hero" data-view="line">
+          <!-- Simple layout (?layout=simple): one Volvo DS status icon instead of the truck image -->
+          <img class="status-icon" id="doors-icon" src="" alt="" draggable="false" />
+          <!-- Door overlay: red line on an unlocked door, red swung-out line on an open door.
+               Coordinates are in the line drawing's pixel space (1024 x 1536). -->
+          <div class="door-figure">
+            <img class="status-hero__image" id="doors-image" src="assets/images/truck-top-line.png" alt="" draggable="false" />
+            <svg class="door-overlay" id="door-overlay" viewBox="0 0 1024 1536" aria-hidden="true" focusable="false"></svg>
+          </div>
+          <p class="status-hero__label"><strong id="doors-subject">Doors:</strong> <span id="doors-state"></span></p>
+          <div class="check" id="doors-check" aria-live="polite"></div>
+        </div>
+        <!-- Direction line: what to do next, only when needed. Sits under the stamp. -->
+        <div class="direction" id="doors-direction" hidden>
+          <p class="direction__text" id="doors-direction-text"></p>
+          <button class="direction__close" type="button" id="doors-direction-close" aria-label="Dismiss">
+            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
+          </button>
+        </div>
+        <div class="action-slot" id="doors-action" aria-live="polite"></div>
+        <div class="history" id="history-doors"></div>
+      </section>
+
+      <!-- Alternative C (?alt=c): alarm and doors on ONE screen, no tabs (mentor: the "here and now"
+           matters most, and the doors must be locked before the alarm can be on). Cab line drawing. -->
+      <section class="tab-panel" id="panel-combined" aria-label="Alarm and doors" hidden>
+        <div class="status-hero status-hero--truck" id="combined-hero" data-view="cab">
+          <div class="door-figure">
+            <img class="status-hero__image" id="combined-image" src="assets/images/truck-top-line.png" alt="" draggable="false" />
+            <svg class="door-overlay" id="combined-overlay" viewBox="0 0 1024 1536" aria-hidden="true" focusable="false"></svg>
+          </div>
+          <div class="check" id="combined-check" aria-live="polite"></div>
+        </div>
+        <ul class="list status-list" id="combined-status"></ul>
+        <div class="direction" id="combined-direction" hidden>
+          <p class="direction__text" id="combined-direction-text"></p>
+          <button class="direction__close" type="button" id="combined-direction-close" aria-label="Dismiss">
+            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
+          </button>
+        </div>
+        <div class="history" id="history-combined"></div>
+      </section>
     </main>
+
+    <!-- Full history page (?history=split): opened by "See all history" under the Recent list -->
+    <section class="history-page" id="history-page" role="dialog" aria-modal="true" aria-labelledby="history-page-title" hidden>
+      <nav class="nav-bar history-page__bar">
+        <button class="icon-button" type="button" aria-label="Back" id="history-page-back">
+          <img src="assets/icons/chevron-left.svg" alt="" />
+        </button>
+        <h2 class="nav-bar__title" id="history-page-title">History</h2>
+        <img class="nav-bar__divider" src="assets/icons/divider-line-appbar.svg" alt="" />
+      </nav>
+      <div class="history" id="history-page-body"></div>
+    </section>
 
     <div class="home-indicator" aria-hidden="true"><span></span></div>
   </div>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=20261110n"></script>
+  <script src="switcher.js?v=20261110n"></script>
 </body>
 </html>
