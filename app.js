@@ -478,7 +478,8 @@ function doorShapes(status) {
     const g = DOOR_GEOMETRY[door.id];
     if (!g || (door.state === "locked" && !door.open)) continue;
     const [x1, y1, x2, y2] = door.open ? g.open : g.edge;
-    shapes.push(svg("line", { class: "door-overlay__line", x1, y1, x2, y2 }));
+    // open door = red (the one thing to act on now); unlocked but closed = ink
+    shapes.push(svg("line", { class: door.open ? "door-overlay__line door-overlay__line--open" : "door-overlay__line", x1, y1, x2, y2 }));
   }
   return shapes;
 }
@@ -773,6 +774,7 @@ function renderCombinedOverlay(status, sensor) {
     const shown = ok && (door.open || door.state === "unlocked");
     leaf.classList.toggle("c-door--hidden", !shown);
     leaf.classList.toggle("c-door--nudge", cNudge && shown);
+    leaf.classList.toggle("door-overlay__line--open", door.open);
     leaf.style.transform = door.open ? `rotate(${C_SWING[door.id]}deg)` : "rotate(0deg)";
   }
 
