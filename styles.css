@@ -124,6 +124,7 @@ img {
   top: 0;
   z-index: 1;
   background: var(--color-background-default);
+  padding-top: env(safe-area-inset-top);
 }
 
 .status-bar {
@@ -1185,9 +1186,10 @@ img {
 
 /* Full history page, over the tab content */
 .history-page {
-  /* below the (drawn) iOS status bar, over everything else */
+  /* over everything, from the top of the screen (below the phone's own status bar / notch) */
   position: fixed;
-  inset: 54px 0 0 0;
+  inset: 0;
+  padding-top: env(safe-area-inset-top);
   z-index: 10;
   max-width: 430px;
   margin: 0 auto;

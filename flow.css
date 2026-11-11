@@ -42,7 +42,7 @@ a { color: inherit; text-decoration: none; -webkit-tap-highlight-color: transpar
 .status-bar img:last-child { width: 143px; }
 :root[data-theme="dark"] .status-bar img { filter: invert(1); }
 
-.bar { background: var(--bar); }
+.bar { background: var(--bar); padding-top: env(safe-area-inset-top); }
 
 /* ---------- Fordon: vehicle list ---------- */
 .title-bar { height: 59px; display: grid; place-items: center; font-weight: 600; font-size: 17px; }
