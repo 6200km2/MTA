@@ -9,17 +9,28 @@
   const root = inA ? "../" : "./";
   const theme = params.get("theme");
   const extra = theme ? `&theme=${encodeURIComponent(theme)}` : "";
-  const current = inA ? "a" : params.get("alt") || "";
+  // On the start-flow pages (Fordon, Instrumentbräda) the pill only picks which alternative
+  // "Larm och lås" will open, and stays on the same page.
+  const inFlow = /\/(vehicles|dashboard)\.html$/.test(location.pathname);
+  const current = inA ? "a" : params.get("alt") || (inFlow ? "b" : "");
 
   const links = [
-    { id: "a", label: "A", title: "A · Today's app", href: `${root}a/index.html${theme ? `?theme=${encodeURIComponent(theme)}` : ""}` },
-    { id: "b", label: "B", title: "B · Photo with overlays", href: `${root}index.html?alt=b${extra}` },
-    { id: "c", label: "C", title: "C · Line drawing, one screen", href: `${root}index.html?alt=c${extra}` },
+    { id: "a", label: "A", title: "A · Dagens app", href: `${root}a/index.html${theme ? `?theme=${encodeURIComponent(theme)}` : ""}` },
+    { id: "b", label: "B", title: "B · Foto med markeringar", href: `${root}index.html?alt=b${extra}` },
+    { id: "c", label: "C", title: "C · Linjeteckning, en skärm", href: `${root}index.html?alt=c${extra}` },
   ];
 
   const nav = document.createElement("nav");
-  nav.className = "alt-switcher";
-  nav.setAttribute("aria-label", "Test alternatives");
+  nav.className = inFlow ? "alt-switcher alt-switcher--flow" : "alt-switcher";
+  nav.setAttribute("aria-label", "Testalternativ");
+  if (inFlow) {
+    for (const l of links) {
+      const q = new URLSearchParams(location.search);
+      q.set("alt", l.id);
+      l.href = `${location.pathname.split("/").pop()}?${q}`;
+    }
+  }
+
   for (const l of links) {
     const a = document.createElement("a");
     a.href = l.href;
@@ -37,6 +48,7 @@
     .alt-switcher a { min-width: 24px; padding: 0 6px; border-radius: 99px; color: #575757; text-align: center; text-decoration: none; }
     .alt-switcher a[aria-current="page"] { background: #212121; color: #fff; }
     .alt-switcher:hover, .alt-switcher:focus-within { opacity: 1; }
+    .alt-switcher--flow { top: 120px; }
     :root[data-theme="dark"] .alt-switcher { background: rgba(255,255,255,.12); }
     :root[data-theme="dark"] .alt-switcher a { color: #b0b0b0; }
     :root[data-theme="dark"] .alt-switcher a[aria-current="page"] { background: #f2f2f2; color: #141414; }

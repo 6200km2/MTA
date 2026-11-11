@@ -781,11 +781,11 @@ img {
 
 #combined-hero {
   padding-top: 12px;
-  padding-bottom: 8px;
+  padding-bottom: 0;
 }
 
-.status-list {
-  margin: 0 var(--page-gutter) 16px;
+.list.status-list {
+  margin: 4px var(--page-gutter) 12px;
 }
 
 .status-row__value {
@@ -800,6 +800,7 @@ img {
 
 #panel-combined .history {
   margin-top: 0;
+  padding-bottom: 12px;
 }
 
 /* ---------- History list ---------- */
@@ -1274,3 +1275,90 @@ body.is-history-open {
   border-radius: 100px;
   background: var(--color-text-primary);
 }
+
+/* ---------- Alternative C: tap the drawing ---------- */
+
+.c-overlay .c-hits { pointer-events: auto; }
+.c-hit { fill: transparent; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.c-overlay--off .c-hits { pointer-events: none; }
+
+/* door leaf: swings shut / out around its hinge, fades away when locked */
+.c-door {
+  transform-box: view-box;
+  transition: transform 0.6s cubic-bezier(0.3, 0.7, 0.2, 1), opacity 0.4s ease;
+}
+.c-door--hidden { opacity: 0; }
+.c-door--nudge { animation: c-nudge 0.45s ease-in-out 3; }
+@keyframes c-nudge { 50% { stroke-width: 26; } }
+
+/* next step: a breathing ring in ink (the line drawing has no dark floor like the photo) */
+.c-tap {
+  fill: var(--color-pressed);
+  stroke: var(--color-text-primary);
+  stroke-width: 5;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: tap-breathe 2.4s ease-in-out infinite;
+}
+.c-busy {
+  fill: none;
+  stroke: var(--color-text-primary);
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-dasharray: 90 200;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: spin 0.9s linear infinite;
+}
+/* alarm just turned on: one ring goes out from the sensor */
+.c-burst {
+  fill: none;
+  stroke: var(--color-text-primary);
+  stroke-width: 6;
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: c-burst 0.9s ease-out 1;
+}
+@keyframes c-burst { 0% { opacity: 0.9; transform: scale(0.3); } 100% { opacity: 0; transform: scale(1.3); } }
+
+/* off -> slash draws in, waves fade */
+.c-sensor--changed .alarm-off__slash, .c-sensor--changed .alarm-off__gap { stroke-dasharray: 180; animation: c-slash 0.45s ease-out 1; }
+@keyframes c-slash { from { stroke-dashoffset: 180; } to { stroke-dashoffset: 0; } }
+.c-sensor--changed .alarm-off__plate { transform-box: fill-box; transform-origin: center; animation: c-pop 0.3s ease-out 1; }
+@keyframes c-pop { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+.c-hint { transform: translate(-50%, 0); transition: left 0.3s ease, top 0.3s ease; }
+
+@media (prefers-reduced-motion: reduce) {
+  .c-door { transition: none; }
+  .c-tap, .c-burst, .c-door--nudge, .c-sensor--changed .alarm-off__slash, .c-sensor--changed .alarm-off__gap, .c-sensor--changed .alarm-off__plate { animation: none; }
+  .c-tap { opacity: 0.7; }
+}
+
+/* Alarm off badge (all views, day and night): plate in the page color with a text-color ring,
+   the sensor icon and a slash through it. Same look on the photo and on the line drawing. */
+.alarm-off__plate {
+  fill: var(--color-background-default);
+  stroke: var(--color-text-primary);
+  stroke-width: 8;
+}
+.alarm-off__dot { fill: var(--color-text-primary); }
+.alarm-off__wave {
+  fill: none;
+  stroke: var(--color-text-primary);
+  stroke-width: 9;
+  stroke-linecap: round;
+}
+.alarm-off__slash {
+  stroke: var(--color-text-primary);
+  stroke-width: 10;
+  stroke-linecap: round;
+}
+.alarm-off__gap {
+  stroke: var(--color-background-default);
+  stroke-width: 26;
+  stroke-linecap: round;
+}
+/* the dimmed drawing in night mode must not dim the badge */
+:root[data-theme="dark"] .door-overlay .alarm-off__plate { fill: var(--color-background-default); }

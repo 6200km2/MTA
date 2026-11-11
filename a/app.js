@@ -4,11 +4,11 @@ const ICONS = "../assets/icons/";
 
 const historyGroups = [
   {
-    label: "Recent",
+    label: "Larmhistorik",
     items: [
-      { icon: "cab-door-left.svg", title: "Driver door has opened", meta: "Today • 14:05" },
-      { icon: "motion-sensor-cab.svg", title: "Motion is detected in the cab", meta: "Yesterday • 02:06" },
-      { icon: "speaker-panic-alarm.svg", title: "Panic Alarm has been activated", meta: "Tuesday • 03:09" },
+      { icon: "cab-door-left.svg", title: "Förardörren har öppnats", meta: "Idag • 09:35" },
+      { icon: "motion-sensor-cab.svg", title: "Rörelse har upptäckts i hytten", meta: "Igår • 02:06" },
+      { icon: "speaker-panic-alarm.svg", title: "Panikalarmet har aktiverats", meta: "Tisdag • 03:09" },
     ],
   },
 ];

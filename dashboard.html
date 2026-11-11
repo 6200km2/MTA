@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <title>Instrumentbräda</title>
+  <link rel="stylesheet" href="flow.css?v=20261111f" />
+</head>
+<body>
+  <div class="screen">
+    <header class="bar">
+      <div class="status-bar">
+        <img src="assets/icons/status-time.svg" alt="9:41" />
+        <img src="assets/icons/status-icons.svg" alt="" />
+      </div>
+      <nav class="dash-bar">
+        <a class="round-button" data-flow="vehicles" href="vehicles.html" aria-label="Stäng">
+          <span class="ico ico--close" aria-hidden="true"></span>
+        </a>
+        <h1 class="dash-bar__title">Instrumentbräda</h1>
+        <!-- Notifications and menu: context only, not buttons in the prototype -->
+        <span class="dash-bar__pill" aria-hidden="true">
+          <span class="ico ico--bell"></span>
+          <span class="ico ico--grid"></span>
+        </span>
+      </nav>
+    </header>
+    <div class="glow" aria-hidden="true"></div>
+
+    <main class="dash">
+      <section class="truck">
+        <img class="truck__img" src="assets/images/fleet/fh-classic-front.png" alt="" />
+        <span class="truck__badge"><span>Demo</span>
+          <span class="ico ico--star-filled" role="img" aria-label="Primär lastbil"></span>
+        </span>
+        <p class="truck__name">Demo FH Classic • <b>TGW222</b></p>
+        <span class="truck__tank" aria-label="AdBlue: låg nivå">
+          <span class="ico ico--tank"></span><i></i>
+        </span>
+      </section>
+      <div class="dash__divider"></div>
+
+      <div class="row climate">
+        <span class="row__icon">
+          <span class="ico ico--climate"></span>
+        </span>
+        <span class="climate__sep"></span>
+        <div><p class="row__text">Parkeringsklimat</p><p class="row__text row__state">På</p></div>
+      </div>
+
+      <div class="row">
+        <span class="row__icon">
+          <span class="ico ico--climate-timers"></span>
+        </span>
+        <p class="row__text">Parkeringsklimattimers</p>
+        <span class="ico ico--chevron row__chev" aria-hidden="true"></span>
+      </div>
+
+      <!-- The task: this row opens the Alarm & Lock screen of the chosen alternative -->
+      <a class="row" data-flow="alarm" href="index.html?alt=b">
+        <span class="row__icon">
+          <span class="ico ico--alarm-lock"></span>
+        </span>
+        <p class="row__text">Larm och lås</p>
+        <span class="ico ico--chevron row__chev" aria-hidden="true"></span>
+      </a>
+
+      <h2 class="section">Fordonsstatus</h2>
+
+      <div class="row metric">
+        <span class="row__icon">
+          <span class="ico ico--range"></span>
+        </span>
+        <div class="metric__body"><p class="metric__label">Räckvidd</p><p class="metric__value">153 <small>km</small></p></div>
+      </div>
+
+      <div class="row metric">
+        <span class="row__icon">
+          <span class="ico ico--fuel-lng"></span>
+        </span>
+        <div class="metric__body"><p class="metric__label">LNG-nivå</p>
+          <div class="fuel" aria-label="LNG-nivå cirka 20 procent">E<span class="fuel__bar"><span style="width:20%"></span></span>F</div></div>
+      </div>
+
+      <div class="row metric">
+        <span class="row__icon">
+          <span class="ico ico--fuel-diesel"></span>
+        </span>
+        <div class="metric__body"><p class="metric__label">Dieselnivå</p>
+          <div class="fuel" aria-label="Dieselnivå cirka 50 procent">E<span class="fuel__bar"><span style="width:50%"></span></span>F</div></div>
+      </div>
+    </main>
+  </div>
+  <script src="flow.js?v=20261111a"></script>
+  <script src="switcher.js?v=20261111c"></script>
+</body>
+</html>

@@ -27,11 +27,12 @@ const ICONS = "assets/icons/";
 
 // ---------- Data ----------
 
-// Each fact is said once: the heading says what and which ("Driver door: unlocked"), the stamp says
-// when it started ("Today, 14:05"), the direction says what to do ("Lock it at the truck.").
-// The stamp shows when that state started (changedAt).
-// People check it against their own memory ("that's when I left"), the way drivers pull the handle
-// to make sure. Keep it consistent with the events below.
+// Each fact is said once: the heading says what and which ("Driver door: open"), the stamp says
+// when the app checked it with the truck ("Today, 09:41"), the direction says what to do.
+// Like the Volvo My Truck app: the icon / image is the state now, and the stamp is when the app
+// got it (checkedAt), right when the screen opens. It matches the phone clock (the status bar
+// says 9:41). When it happened is in Recent (changedAt = the time of that event), always before
+// the stamp. Keep it consistent with the events below and with A (a/app.js).
 //
 // lastReportMinutes = minutes since the backend last heard from the truck. It is not shown as a
 // time (what it means is unclear to people); it only decides when to warn that the state may be old.
@@ -41,15 +42,16 @@ const STALE_AFTER_MINUTES = 30;
 const vehicleStatus = {
   connection: "ok",
   lastReportMinutes: 4,
+  checkedAt: "today, 09:41", // when the app got this state from the truck (the stamp)
   remoteControl: false, // true when this truck can be locked / armed from the app
   remoteAlarm: false, // alarm only can be turned on / off from the app (photo version, for comparison)
-  alarm: { state: "off", changedAt: "today, 14:04" },
+  alarm: { state: "off", changedAt: "today, 09:34" },
   doors: {
-    changedAt: "today, 14:05",
+    changedAt: "today, 09:35",
     // state: "locked" | "unlocked"; open: true when the door is physically open.
     list: [
-      { id: "driver", name: "Driver door", state: "unlocked", open: true },
-      { id: "passenger", name: "Passenger door", state: "locked", open: false },
+      { id: "driver", name: "Förardörr", the: "förardörren", state: "unlocked", open: true },
+      { id: "passenger", name: "Passagerardörr", the: "passagerardörren", state: "locked", open: false },
     ],
   },
 };
@@ -97,18 +99,29 @@ function sensorShapes(mode, { cx, cy, radii, spread }) {
     const a = (deg * Math.PI) / 180;
     return `${(cx + r * Math.cos(a)).toFixed(1)} ${(cy + r * Math.sin(a)).toFixed(1)}`;
   };
-  const waveClass = (i) => (mode === "on" ? `alarm-wave alarm-wave--${i + 1}` : "alarm-wave alarm-wave--off");
+  // Off: a small badge on a plate (sensor icon crossed out), not loose lines on the drawing — a long
+  // slash read as a second door line, and faint waves disappeared into the seats (mock test).
+  // Plate = page background, marks = text color, so it looks the same in day and night mode.
+  if (mode === "off") {
+    const r = 105;
+    const off = [svg("circle", { class: "alarm-off__plate", cx, cy, r }), svg("circle", { class: "alarm-off__dot", cx, cy, r: 11 })];
+    for (const wr of [38, 66]) {
+      for (const mid of [0, 180]) {
+        off.push(svg("path", { class: "alarm-off__wave", d: `M${pt(wr, mid - 40)} A${wr} ${wr} 0 0 1 ${pt(wr, mid + 40)}` }));
+      }
+    }
+    const d = 60;
+    const line = { x1: cx - d, y1: cy - d, x2: cx + d, y2: cy + d };
+    off.push(svg("line", { class: "alarm-off__gap", ...line }), svg("line", { class: "alarm-off__slash", ...line }));
+    return off;
+  }
+  const waveClass = (i) => `alarm-wave alarm-wave--${i + 1}`;
   const shapes = [svg("circle", { class: "alarm-wave__dot", cx, cy, r: 14 })];
   radii.forEach((r, i) => {
     for (const mid of [0, 180]) {
       shapes.push(svg("path", { class: waveClass(i), d: `M${pt(r, mid - spread)} A${r} ${r} 0 0 1 ${pt(r, mid + spread)}` }));
     }
   });
-  if (mode === "off") {
-    const d = 105; // slash from top-left to bottom-right, as far as the waves reach
-    const line = { x1: cx - d, y1: cy - d, x2: cx + d, y2: cy + d };
-    shapes.push(svg("line", { class: "alarm-slash__gap", ...line }), svg("line", { class: "alarm-slash", ...line }));
-  }
   return shapes;
 }
 
@@ -120,89 +133,101 @@ const events = [
   {
     category: "doors",
     icon: "cab-door-left.svg",
-    title: "Driver door has opened",
-    when: "Today • 14:05",
+    title: "Förardörren har öppnats",
+    when: "Today • 09:35",
   },
   {
     category: "doors",
     icon: "lock-locked.svg",
-    title: "Doors have been locked",
+    title: "Dörrarna har låsts",
     when: "Yesterday • 18:20",
   },
   {
     category: "doors",
     icon: "cab-door-left.svg",
-    title: "Passenger door has opened",
+    title: "Passagerardörren har öppnats",
     when: "Monday • 07:45",
   },
   {
     category: "alarm",
     icon: "motion-sensor-cab-disabled.svg",
-    title: "Alarm has been turned off",
-    when: "Today • 14:04",
+    title: "Larmet har stängts av",
+    when: "Today • 09:34",
   },
   {
     category: "alarm",
     icon: "motion-sensor-cab.svg",
     // mentor feedback: say what set the alarm off, not only that it went off
-    title: "Alarm went off: motion in the cab",
+    title: "Larmet gick: rörelse i hytten",
     when: "Yesterday • 02:06",
-    where: "Cab",
+    where: "Hytten",
     attention: true,
-    direction: "Check the cab when you're back at the truck.",
+    direction: "Titta till hytten när du är tillbaka vid lastbilen.",
   },
   {
     category: "alarm",
     icon: "speaker-panic-alarm.svg",
-    title: "Alarm went off: panic button pressed",
+    title: "Larmet gick: panikknappen trycktes",
     when: "Tuesday • 03:09",
-    where: "Cab",
+    where: "Hytten",
   },
 ];
 
 const TEXT = {
-  // Time only ("Today, 14:05"): the heading right above says what the time is for.
-  since: (t) => t.charAt(0).toUpperCase() + t.slice(1),
+  // Swedish only (all participants are Swedish). Time only ("Idag 09:41"): the heading right above
+  // says what the time is for. Internal keys stay English ("today, 09:41", "on", "locked").
+  since: (t) => dayText(String(t).replace(/^(\w+),\s*/, (m, d) => `${cap(d)} `)),
   direction: {
-    closeAndLock: (many) => `Close and lock ${many ? "them" : "it"} at the truck.`,
-    lock: (many) => `Lock ${many ? "them" : "it"} at the truck.`,
-    alarmOn: "Turn it on when you lock the truck.",
-    alarmNeedsLock: "The alarm can only be on when all doors are locked.",
+    closeAndLock: (many) => `Stäng och lås ${many ? "dem" : "den"} vid lastbilen.`,
+    lock: (many) => `Lås ${many ? "dem" : "den"} vid lastbilen.`,
+    alarmOn: "Slå på det när du låser lastbilen.",
+    alarmNeedsLock: "Larmet kan bara vara på när alla dörrar är låsta.",
   },
-  stale: (m) => `May be out of date. Last report from the truck ${m} min ago`,
-  checking: "Checking with the truck…",
-  failed: "Couldn't reach the truck. Showing the last known state.",
-  tryAgain: "Try again",
-  recent: "Recent",
-  toCheck: (n) => `${n} to check`,
-  seeAllPage: "See all history",
-  truckHint: { on: "Tap to turn off", off: "Tap to turn on", working: { on: "Turning off…", off: "Turning on…" } },
-  truckButton: (on) => (on ? "Alarm on. Tap the truck to turn it off" : "Alarm off. Tap the truck to turn it on"),
-  historyTitle: { alarm: "Alarm history", doors: "Door history", all: "History" },
-  lastKnown: "Last known state",
-  dayGroup: { Today: "Today", Yesterday: "Yesterday", other: "Earlier" },
-  seeAll: (n, more) => (more ? `See all history (${n} more)` : `See history (${n})`),
-  showLess: "Show less",
+  stale: (m) => `Kan vara inaktuellt. Senaste rapport från lastbilen för ${m} min sedan`,
+  checking: "Kontrollerar med lastbilen…",
+  failed: "Kunde inte nå lastbilen. Visar senast kända läge.",
+  tryAgain: "Försök igen",
+  recent: "Senaste",
+  toCheck: (n) => `${n} att kontrollera`,
+  seeAllPage: "Visa all historik",
+  truckHint: { on: "Tryck för att stänga av", off: "Tryck för att slå på", working: { on: "Stänger av…", off: "Slår på…" } },
+  truckButton: (on) => (on ? "Larm på. Tryck på lastbilen för att stänga av" : "Larm av. Tryck på lastbilen för att slå på"),
+  historyTitle: { alarm: "Larmhistorik", doors: "Dörrhistorik", all: "Historik" },
+  lastKnown: "Senast kända läge",
+  dayGroup: { Today: "Idag", Yesterday: "Igår", other: "Tidigare" },
+  seeAll: (n, more) => (more ? `Visa all historik (${n} till)` : `Visa historik (${n})`),
+  showLess: "Visa mindre",
   // Empty history is common on real trucks (mentor): say what will show up here instead of a blank.
   empty: {
-    alarm: "The alarm hasn't gone off. If it does, you'll see here what set it off.",
-    doors: "No door events yet. Opened and locked doors will show up here.",
-    all: "Nothing has happened yet. Alarms and door events will show up here.",
+    alarm: "Larmet har inte gått. Om det gör det ser du här vad som utlöste det.",
+    doors: "Inga dörrhändelser än. Öppnade och låsta dörrar visas här.",
+    all: "Inget har hänt än. Larm och dörrhändelser visas här.",
   },
-  historyFailed: "History couldn't be loaded.",
+  historyFailed: "Historiken kunde inte laddas.",
   buttons: {
-    alarmOn: "Turn on alarm",
-    alarmOff: "Turn off alarm",
-    lock: "Lock doors",
-    closeFirst: "Close the door to lock",
-    unlock: "Unlock doors",
-    cancel: "Cancel",
-    confirmUnlock: "Unlock",
-    working: { alarmOn: "Turning on…", alarmOff: "Turning off…", lock: "Locking…", unlock: "Unlocking…" },
+    alarmOn: "Slå på larm",
+    alarmOff: "Stäng av larm",
+    lock: "Lås dörrar",
+    closeFirst: "Stäng dörren för att låsa",
+    unlock: "Lås upp dörrar",
+    cancel: "Avbryt",
+    confirmUnlock: "Lås upp",
+    working: { alarmOn: "Slår på…", alarmOff: "Stänger av…", lock: "Låser…", unlock: "Låser upp…" },
   },
-  confirmUnlock: "<strong>Unlock all doors?</strong> Anyone near the truck can open them.",
-  failedCommand: "<strong>The truck didn't respond.</strong> Nothing was changed. Check at the truck or try again.",
+  confirmUnlock: "<strong>Lås upp alla dörrar?</strong> Vem som helst nära lastbilen kan öppna dem.",
+  failedCommand: "<strong>Lastbilen svarade inte.</strong> Inget ändrades. Kontrollera vid lastbilen eller försök igen.",
+  labels: { alarm: "Larm", doors: "Dörrar" },
 };
+
+// Shown words for the internal states and days
+const SV = {
+  alarm: { on: "på", off: "av" },
+  doors: { locked: "låsta", unlocked: "olåsta", open: "öppna" }, // "Dörrar: låsta"
+  door: { locked: "låst", unlocked: "olåst", open: "öppen" }, // "Förardörr: öppen"
+  day: { Today: "Idag", Yesterday: "Igår", Monday: "Måndag", Tuesday: "Tisdag", Wednesday: "Onsdag", Thursday: "Torsdag", Friday: "Fredag", Saturday: "Lördag", Sunday: "Söndag" },
+};
+const dayText = (when) => String(when).replace(/^(Today|Yesterday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\b/, (d) => SV.day[d]);
+const doorsWord = (heading) => (heading.subject === TEXT.labels.doors ? SV.doors : SV.door)[heading.state] || heading.state;
 
 // ---------- Helpers ----------
 
@@ -223,9 +248,9 @@ function img(src, className) {
   return i;
 }
 
-// Demo clock: the demo data is set around 14:00, so actions continue from 14:32 (one minute per
-// action) instead of the real time, which could read as earlier than the demo events.
-let demoMinutes = 14 * 60 + 32;
+// Demo clock: starts at 09:41 like the status bar (one minute per action), instead of the real
+// time, which could read as earlier than the demo events.
+let demoMinutes = 9 * 60 + 41;
 function nowText() {
   demoMinutes += 1;
   const hh = String(Math.floor(demoMinutes / 60) % 24).padStart(2, "0");
@@ -297,7 +322,7 @@ function eventRow(item) {
   iconBox.append(img(ICONS + item.icon, item.iconClass));
 
   const text = el("div", "list-item__text");
-  const meta = item.where ? `${item.when} • ${item.where}` : item.when;
+  const meta = dayText(item.where ? `${item.when} • ${item.where}` : item.when);
   text.append(el("p", "list-item__title", item.title), el("p", "list-item__meta", meta));
 
   content.append(iconBox, text);
@@ -308,7 +333,7 @@ function eventRow(item) {
     const box = el("button", "check-toggle");
     box.type = "button";
     box.setAttribute("aria-pressed", String(!unchecked));
-    box.setAttribute("aria-label", unchecked ? `Mark "${item.title}" as checked` : `"${item.title}" checked. Mark as not checked`);
+    box.setAttribute("aria-label", unchecked ? `Markera "${item.title}" som kontrollerad` : `"${item.title}" kontrollerad. Markera som inte kontrollerad`);
     box.addEventListener("click", () => {
       const nowChecked = box.getAttribute("aria-pressed") !== "true";
       // update this row right away (also on the history page), then the tab
@@ -323,11 +348,12 @@ function eventRow(item) {
 
 // What the tab shows: events that need attention (pinned first), then today's events, at most
 // MAX_SHOWN. The event that started the current state is left out here: the heading and time
-// stamp above already say it ("Driver door: open / Today, 14:05"). Everything is one tap away.
+// stamp above already say it ("Driver door: open / Today, 09:41"). Everything is one tap away.
 const MAX_SHOWN = 2;
 const expanded = { alarm: false, doors: false };
-const sameTime = (when, changedAt) =>
-  when.replace(" •", ",").toLowerCase() === String(changedAt || "").toLowerCase();
+// The stamp is the check time now, so Recent keeps the event of the current state (it is the only
+// place that says when it happened). Nothing is filtered out any more.
+const sameTime = () => false;
 
 // A tab with a control button (e.g. Turn on alarm) keeps one history row so it still fits one screen.
 let rowsLimit = MAX_SHOWN;
@@ -431,7 +457,7 @@ function doorsHeading(status) {
     const d = notLocked[0];
     return { subject: d.name, state: d.open ? "open" : "unlocked" };
   }
-  return { subject: "Doors", state: doorsState(status) };
+  return { subject: TEXT.labels.doors, state: doorsState(status) };
 }
 
 // ---------- Door overlay ----------
@@ -478,12 +504,12 @@ function directionFor(category, status) {
     // here and now first: an open / unlocked door, then the alarm (it needs the doors locked)
     // no heading names the door on this screen, so the direction does
     const notLocked = status.doors.list.filter((x) => x.open || x.state === "unlocked");
-    if (notLocked.length && !canControl("doors", status)) {
-      const names = notLocked.map((x) => x.name.toLowerCase()).join(" and ");
-      const verb = openDoors(status).length ? "Close and lock" : "Lock";
-      return { text: `${verb} the ${names} at the truck. ${TEXT.direction.alarmNeedsLock}`, urgent: false };
+    if (notLocked.length) {
+      const names = notLocked.map((x) => x.the).join(" och ");
+      const verb = openDoors(status).length ? "Stäng och lås" : "Lås";
+      return { text: `${verb} ${names} vid lastbilen. ${TEXT.direction.alarmNeedsLock}`, urgent: false };
     }
-    return directionFor("alarm", status);
+    return null; // all locked: the rows say it, and the hint on the cab says how to turn the alarm on
   }
   const attention = events.find((e) => e.category === category && e.attention && e.direction);
   if (attention && !simpleLayout()) return { text: attention.direction, urgent: true };
@@ -584,11 +610,11 @@ function renderStatus(status) {
   $("alarm-image").src = TRUCK_IMAGES[view];
   const sensor = status.connection !== "ok" ? "unknown" : status.alarm.state;
   $("alarm-image").alt =
-    sensor === "unknown" ? "Truck seen from above, alarm state unknown" : `Truck seen from above, alarm ${sensor}`;
+    sensor === "unknown" ? "Lastbilen sedd ovanifrån, larmets läge okänt" : `Lastbilen sedd ovanifrån, larm ${SV.alarm[sensor]}`;
   $("alarm-overlay").replaceChildren(...sensorShapes(sensor, ALARM_WAVES));
   $("alarm-icon").src = ICONS + STATUS_ICONS.alarm[sensor];
-  $("alarm-state").textContent = status.alarm.state;
-  renderCheck($("alarm-check"), status, status.alarm.changedAt);
+  $("alarm-state").textContent = SV.alarm[status.alarm.state];
+  renderCheck($("alarm-check"), status, status.checkedAt);
 
   // Doors
   const doors = doorsState(status);
@@ -597,14 +623,14 @@ function renderStatus(status) {
   $("doors-image").src = TRUCK_IMAGES[view];
   const open = openDoors(status);
   $("doors-image").alt = open.length
-    ? `Truck seen from above. Open: ${open.map((d) => d.name).join(", ")}`
-    : `Truck seen from above, doors ${doors}`;
+    ? `Lastbilen sedd ovanifrån. Öppen: ${open.map((d) => d.name).join(", ")}`
+    : `Lastbilen sedd ovanifrån, dörrar ${SV.doors[doors] || doors}`;
   renderDoorOverlay(status);
   const heading = doorsHeading(status);
   $("doors-icon").src = ICONS + STATUS_ICONS.doors[status.connection !== "ok" ? "unknown" : heading.state];
   $("doors-subject").textContent = `${heading.subject}:`;
-  $("doors-state").textContent = heading.state;
-  renderCheck($("doors-check"), status, status.doors.changedAt);
+  $("doors-state").textContent = doorsWord(heading);
+  renderCheck($("doors-check"), status, status.checkedAt);
 
   renderAction("alarm", status);
   renderAction("doors", status);
@@ -641,21 +667,21 @@ function renderCombined(status) {
   const ok = status.connection === "ok";
   const sensor = ok ? status.alarm.state : "unknown";
   $("combined-hero").dataset.stale = String(!ok || status.lastReportMinutes >= STALE_AFTER_MINUTES);
-  $("combined-overlay").replaceChildren(...(ok ? [...doorShapes(status), ...sensorShapes(sensor, ALARM_WAVES)] : sensorShapes("unknown", ALARM_WAVES)));
+  renderCombinedOverlay(status, sensor);
   const heading = doorsHeading(status);
-  const doorsValue = heading.subject === "Doors" ? cap(heading.state) : `${heading.subject} ${heading.state}`;
-  $("combined-image").alt = `Truck seen from above. ${doorsValue}. Alarm ${status.alarm.state}.`;
+  const doorsValue = heading.subject === TEXT.labels.doors ? cap(doorsWord(heading)) : `${heading.subject} ${doorsWord(heading)}`;
+  $("combined-image").alt = `Lastbilen sedd ovanifrån. ${doorsValue}. Larm ${SV.alarm[status.alarm.state]}.`;
 
   // checking / failed: one line under the drawing; otherwise the times sit in the rows
   const check = $("combined-check");
   if (ok && status.lastReportMinutes < STALE_AFTER_MINUTES) check.replaceChildren();
-  else renderCheck(check, status, status.doors.changedAt);
+  else renderCheck(check, status, status.checkedAt);
 
   const when = (t) => (ok ? TEXT.since(t) : TEXT.lastKnown);
   $("combined-status").replaceChildren(
     ...[
-      statusRow({ icon: STATUS_ICONS.doors[heading.state], label: "Doors", value: doorsValue, when: when(status.doors.changedAt) }),
-      statusRow({ icon: STATUS_ICONS.alarm[status.alarm.state], label: "Alarm", value: cap(status.alarm.state), when: when(status.alarm.changedAt) }),
+      statusRow({ icon: STATUS_ICONS.doors[heading.state], label: TEXT.labels.doors, value: C_BUSY_TEXT[cBusy]?.doors || doorsValue, when: when(status.checkedAt) }),
+      statusRow({ icon: STATUS_ICONS.alarm[status.alarm.state], label: TEXT.labels.alarm, value: C_BUSY_TEXT[cBusy]?.alarm || cap(SV.alarm[status.alarm.state]), when: when(status.checkedAt) }),
     ].map((row, i, all) => {
       const li = el("li", "list-item");
       li.append(row);
@@ -690,11 +716,153 @@ function renderCombined(status) {
 
 const cap = (t) => t.charAt(0).toUpperCase() + t.slice(1);
 
+// ---------- Alternative C: tap the cab for the alarm ----------
+// Kept small for the user test (does the drawing show the state?): the doors only show their state
+// (they are closed and locked at the truck), and the only tap is the cab = alarm on / off, like
+// tapping the truck in B. With a door not locked the alarm can't go on: the door pulses and a hint
+// says so. The overlay is built once and updated, so the door and sensor transitions can run.
+
+const C_SWING = { driver: 35, passenger: -35 }; // degrees the door leaf swings out around its hinge
+const C_BUSY_TEXT = { alarmOn: { alarm: "Slår på…" }, alarmOff: { alarm: "Stänger av…" } };
+const C_HINT = { alarmOn: "Tryck för att slå på", alarmOff: "Tryck för att stänga av", needsLock: "Lås dörrarna först" };
+// image px (1024 x 1536) -> px in the cab crop (see [data-view="cab"] in styles.css)
+const toFigure = (x, y) => ({ left: x * 0.376 - 22.6, top: y * 0.376 });
+
+let cBusy = null; // null | "alarmOn" | "alarmOff"
+let cNudge = false; // tapped the cab while a door wasn't locked
+let cBuilt = false;
+const cLayers = {};
+
+const controlOn = () => params.get("control") === "on";
+const allLocked = (status) => status.doors.list.every((d) => !d.open && d.state === "locked");
+
+function buildCombinedOverlay() {
+  const layer = $("combined-overlay");
+  layer.classList.add("c-overlay");
+  cLayers.sensor = svg("g", { class: "c-sensor" });
+  cLayers.doors = svg("g", {});
+  cLayers.cues = svg("g", { class: "c-cues" });
+  cLayers.unknown = svg("g", {});
+  for (const door of vehicleStatus.doors.list) {
+    const g = DOOR_GEOMETRY[door.id];
+    if (!g) continue;
+    const [x1, y1, x2, y2] = g.edge;
+    const leaf = svg("line", { class: "door-overlay__line c-door", x1, y1, x2, y2, "data-door": door.id });
+    leaf.style.transformOrigin = `${x1}px ${y1}px`;
+    cLayers.doors.append(leaf);
+  }
+  layer.replaceChildren(cLayers.sensor, cLayers.doors, cLayers.cues, cLayers.unknown);
+  if (controlOn()) {
+    const hits = svg("g", { class: "c-hits" });
+    const { cx, cy } = ALARM_WAVES;
+    hits.append(svg("circle", { class: "c-hit", cx, cy, r: 190, "data-hit": "cab" }));
+    layer.append(hits);
+    hits.addEventListener("click", () => combinedTap());
+  }
+  cBuilt = true;
+}
+
+function renderCombinedOverlay(status, sensor) {
+  if (!cBuilt) buildCombinedOverlay();
+  const ok = status.connection === "ok";
+  $("combined-overlay").classList.toggle("c-overlay--off", !ok);
+
+  // doors: shown while unlocked or open; the open one swings out
+  for (const leaf of cLayers.doors.querySelectorAll(".c-door")) {
+    const door = status.doors.list.find((d) => d.id === leaf.dataset.door);
+    const shown = ok && (door.open || door.state === "unlocked");
+    leaf.classList.toggle("c-door--hidden", !shown);
+    leaf.classList.toggle("c-door--nudge", cNudge && shown);
+    leaf.style.transform = door.open ? `rotate(${C_SWING[door.id]}deg)` : "rotate(0deg)";
+  }
+
+  // sensor: waves (on) / slash (off); rebuilt only when the state changes, so the blink keeps going
+  const mode = ok ? sensor : "hidden";
+  if (cLayers.sensor.dataset.mode !== mode) {
+    const wasOff = cLayers.sensor.dataset.mode === "off";
+    // animate only a change made here, not the first draw
+    cLayers.sensor.classList.toggle("c-sensor--changed", Boolean(cLayers.sensor.dataset.mode));
+    cLayers.sensor.dataset.mode = mode;
+    cLayers.sensor.replaceChildren(...(ok ? sensorShapes(sensor, ALARM_WAVES) : []));
+    if (mode === "on" && wasOff) {
+      const { cx, cy } = ALARM_WAVES;
+      cLayers.sensor.append(svg("circle", { class: "c-burst", cx, cy, r: 170 })); // one pulse when it turns on
+    }
+  }
+  cLayers.unknown.replaceChildren(...(ok ? [] : sensorShapes("unknown", ALARM_WAVES)));
+
+  // cue on the cab: spinner while waiting; a breathing ring + hint only when a tap can do something
+  const { cx, cy } = ALARM_WAVES;
+  const cues = [];
+  const hint = $("combined-hint");
+  let text = null;
+  if (!controlOn()) {
+    // status only: no ring, no hint
+  } else if (ok && cBusy) {
+    cues.push(svg("circle", { class: "c-busy", cx, cy, r: 55 }));
+  } else if (ok && cNudge) {
+    text = C_HINT.needsLock;
+  } else if (ok && status.alarm.state === "on") {
+    text = C_HINT.alarmOff;
+  } else if (ok && allLocked(status)) {
+    cues.push(svg("circle", { class: "c-tap", cx, cy, r: 92 }));
+    text = C_HINT.alarmOn;
+  }
+  hint.hidden = !text;
+  if (text) {
+    const pos = toFigure(cx, 640);
+    hint.textContent = text;
+    hint.style.left = `${pos.left}px`;
+    hint.style.top = `${pos.top}px`;
+  }
+  cLayers.cues.replaceChildren(...cues);
+}
+
+function cLog(category, icon, title) {
+  const t = nowText();
+  events.unshift({ category, icon, title, when: `Today • ${t.slice(7)}`, source: "app" });
+  return t;
+}
+
+function combinedTap() {
+  const status = vehicleStatus;
+  if (cBusy || status.connection !== "ok") return;
+  if (status.alarm.state === "off" && !allLocked(status)) {
+    // can't turn on: point at the door that isn't locked
+    cNudge = true;
+    renderStatus(status);
+    clearTimeout(combinedTap.nudgeTimer);
+    combinedTap.nudgeTimer = setTimeout(() => {
+      cNudge = false;
+      renderStatus(vehicleStatus);
+    }, 1800);
+    return;
+  }
+  cNudge = false;
+  combinedCommand(status.alarm.state === "on" ? "alarmOff" : "alarmOn");
+}
+
+function combinedCommand(command) {
+  cBusy = command;
+  renderStatus(vehicleStatus);
+  setTimeout(() => {
+    const on = command === "alarmOn";
+    vehicleStatus.alarm = {
+      state: on ? "on" : "off",
+      changedAt: cLog("alarm", on ? "motion-sensor-cab.svg" : "motion-sensor-cab-disabled.svg", (on ? "Larmet har slagits på" : "Larmet har stängts av")),
+    };
+    vehicleStatus.lastReportMinutes = 0;
+    vehicleStatus.checkedAt = vehicleStatus.alarm.changedAt;
+    cBusy = null;
+    renderStatus(vehicleStatus);
+  }, 1200);
+}
+
 // ---------- Action slot ----------
 // Trucks without remote control: nothing (the slot stays empty).
 // Trucks with remote control: a button, a confirm step for unlocking, then the truck's confirmation.
 
-// The stamp above changing to e.g. "Today, 14:40" with "Doors: locked" is the truck's confirmation.
+// The stamp above changing to e.g. "Today, 09:45" with "Doors: locked" is the truck's confirmation.
 const actionState = { alarm: null, doors: null }; // null | "confirm" | "working" | { failed }
 
 function note(html, failed) {
@@ -778,9 +946,19 @@ function renderAlarmTruck(status, s) {
   else delete fig.dataset.working;
 
   // hint pill under the sensor spot: says what a tap does (or what is happening)
+  // Same rule as C: the alarm can only go on when all doors are locked. Until then no ring and no
+  // "Tap to turn on"; a tap says "Lock the doors first".
+  const canTurnOn = allLocked(status);
   const hint = $("alarm-hint");
-  hint.hidden = offline;
-  hint.textContent = working ? TEXT.truckHint.working[on ? "on" : "off"] : TEXT.truckHint[on ? "on" : "off"];
+  const hintText = working
+    ? TEXT.truckHint.working[on ? "on" : "off"]
+    : bNudge
+      ? C_HINT.needsLock
+      : on || canTurnOn
+        ? TEXT.truckHint[on ? "on" : "off"]
+        : null;
+  hint.hidden = offline || !hintText;
+  if (hintText) hint.textContent = hintText;
   renderCoach(!offline && !working);
 
   if (offline) return; // the question mark is already there
@@ -788,13 +966,14 @@ function renderAlarmTruck(status, s) {
   if (working) {
     const busy = svg("circle", { class: "alarm-cue alarm-busy", cx, cy, r: 46 });
     overlay.append(busy);
-  } else if (!on) {
+  } else if (!on && canTurnOn) {
     overlay.append(svg("circle", { class: "alarm-cue alarm-tap", cx, cy, r: 92 }));
   }
 }
 
 // First-visit popup pointing at the sensor spot. Closes with "Got it" or the first tap on the truck,
 // and stays closed (sessionStorage).
+let bNudge = false; // B: tapped the truck to turn the alarm on while a door wasn't locked
 const COACH_KEY = "mta.truckCoachSeen";
 const coachSeen = () => {
   try {
@@ -824,6 +1003,17 @@ function toggleAlarmFromTruck() {
   closeCoach();
   const fig = $("alarm-figure");
   if (!fig.classList.contains("truck-button") || fig.getAttribute("aria-disabled") === "true") return;
+  if (vehicleStatus.alarm.state === "off" && !allLocked(vehicleStatus)) {
+    bNudge = true;
+    renderStatus(vehicleStatus);
+    clearTimeout(toggleAlarmFromTruck.nudgeTimer);
+    toggleAlarmFromTruck.nudgeTimer = setTimeout(() => {
+      bNudge = false;
+      renderStatus(vehicleStatus);
+    }, 1800);
+    return;
+  }
+  bNudge = false;
   runCommand("alarm", vehicleStatus.alarm.state === "on" ? "alarmOff" : "alarmOn");
 }
 
@@ -854,10 +1044,10 @@ function runCommand(category, command) {
       const t = nowText();
       const when = `Today • ${t.slice(7)}`;
       const logged = {
-        alarmOn: { category: "alarm", icon: "motion-sensor-cab.svg", title: "Alarm has been turned on" },
-        alarmOff: { category: "alarm", icon: "motion-sensor-cab-disabled.svg", title: "Alarm has been turned off" },
-        lock: { category: "doors", icon: "lock-locked.svg", title: "Doors have been locked" },
-        unlock: { category: "doors", icon: "lock-unlocked.svg", title: "Doors have been unlocked" },
+        alarmOn: { category: "alarm", icon: "motion-sensor-cab.svg", title: "Larmet har slagits på" },
+        alarmOff: { category: "alarm", icon: "motion-sensor-cab-disabled.svg", title: "Larmet har stängts av" },
+        lock: { category: "doors", icon: "lock-locked.svg", title: "Dörrarna har låsts" },
+        unlock: { category: "doors", icon: "lock-unlocked.svg", title: "Dörrarna har låsts upp" },
       }[command];
       events.unshift({ ...logged, when, source: "app" }); // newest first, in the history too
       if (command === "alarmOn" || command === "alarmOff") {
@@ -868,6 +1058,7 @@ function runCommand(category, command) {
         vehicleStatus.doors.changedAt = t;
       }
       vehicleStatus.lastReportMinutes = 0;
+      vehicleStatus.checkedAt = t;
       actionState[category] = null;
     }
     renderStatus(vehicleStatus);
@@ -880,6 +1071,7 @@ function reconnect() {
   setTimeout(() => {
     vehicleStatus.connection = "ok";
     vehicleStatus.lastReportMinutes = 0;
+    vehicleStatus.checkedAt = nowText();
     renderStatus(vehicleStatus);
   }, 1200);
 }
@@ -973,7 +1165,7 @@ document.documentElement.dataset.layout = params.get("layout") === "simple" ? "s
 if (params.get("alarm") === "on" || params.get("alarm") === "off") vehicleStatus.alarm.state = params.get("alarm");
 if (params.get("doors") === "locked") {
   vehicleStatus.doors.list.forEach((d) => Object.assign(d, { state: "locked", open: false }));
-  vehicleStatus.doors.changedAt = "today, 14:10";
+  vehicleStatus.doors.changedAt = "today, 09:30";
 }
 if (params.has("open")) {
   const ids = params.get("open").split(",");
@@ -985,8 +1177,10 @@ if (params.has("open")) {
 if (["checking", "failed"].includes(params.get("connection"))) vehicleStatus.connection = params.get("connection");
 if (params.get("remote") === "1") vehicleStatus.remoteControl = true;
 if (params.get("events") === "none") events.splice(0, events.length);
-// Photo version only: the alarm can be turned on / off from the app (compare with the line drawing)
-if (params.get("truck") === "photo") vehicleStatus.remoteAlarm = true;
+// User test: all three alternatives only show the state (no lock / alarm commands, like today's
+// app), so they are compared on how well they show it. ?control=on brings back tapping the truck
+// (B) or the cab (C) to turn the alarm on / off, for a later test.
+if (controlOn() && params.get("truck") === "photo") vehicleStatus.remoteAlarm = true;
 if (params.get("stale") === "1") vehicleStatus.lastReportMinutes = 45;
 
 if (combinedView()) {
