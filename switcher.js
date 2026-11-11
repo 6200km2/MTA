@@ -5,7 +5,8 @@
 // this browser tab (sessionStorage). ?switcher=off never shows it (e.g. for screenshots).
 //
 // A switch always starts the new alternative from the vehicle list (Fordon -> Demo FH Classic ->
-// Larm och lås), so every alternative begins the same way as the first one. Keeps ?theme=….
+// Larm och lås), so every alternative begins the same way as the first one, with the next situation
+// (?s=1, 2, 3 – see app.js), so it is answered from the screen and not from memory. Keeps ?theme=….
 (function () {
   const params = new URLSearchParams(location.search);
   if (params.get("switcher") === "off") return;
@@ -33,6 +34,10 @@
   const inFlow = /\/(vehicles|dashboard)\.html$/.test(location.pathname);
   const current = inA ? "a" : params.get("alt") || (inFlow ? "b" : "");
 
+  // In A (always last) the count stays at 3; elsewhere a switch moves on to the next situation.
+  const situationNow = inA ? 3 : Number(params.get("s")) || 1;
+  const nextSituation = Math.min(situationNow + 1, 3);
+
   const links = [
     { id: "a", label: "A", title: "A · Dagens app" },
     { id: "b", label: "B", title: "B · Foto med markeringar" },
@@ -44,7 +49,8 @@
   nav.setAttribute("aria-label", "Testalternativ");
   for (const l of links) {
     const a = document.createElement("a");
-    a.href = `${root}vehicles.html?alt=${l.id}${extra}`;
+    // next alternative = next situation (1 -> 2 -> 3); A always has situation 3 built in
+    a.href = `${root}vehicles.html?alt=${l.id}&s=${nextSituation}${extra}`;
     a.textContent = l.label;
     a.title = l.title;
     if (l.id === current) a.setAttribute("aria-current", "page");

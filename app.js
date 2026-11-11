@@ -1165,6 +1165,24 @@ applyTheme();
 darkQuery.addEventListener("change", applyTheme);
 document.documentElement.dataset.layout = params.get("layout") === "simple" ? "simple" : "image";
 if (params.get("alarm") === "on" || params.get("alarm") === "off") vehicleStatus.alarm.state = params.get("alarm");
+// User test: a different situation for each alternative, so the second and third are answered
+// from the screen, not from memory. ?s = the alternative's place in the session (set by the A/B/C
+// switcher: 1 = first shown, 2 = second; A is always third and has situation 3 built in).
+//   s=1  driver door open, alarm off, the alarm went off last night (motion in the cab)
+//   s=2  all doors locked, alarm on, nothing happened last night
+if (params.get("s") === "2") {
+  vehicleStatus.alarm = { state: "on", changedAt: "today, 09:31" };
+  vehicleStatus.doors.list.forEach((d) => Object.assign(d, { state: "locked", open: false }));
+  vehicleStatus.doors.changedAt = "today, 09:30";
+  events.splice(0, events.length,
+    { category: "alarm", icon: "motion-sensor-cab.svg", title: "Larmet har slagits på", when: "Today • 09:31" },
+    { category: "doors", icon: "lock-locked.svg", title: "Dörrarna har låsts", when: "Today • 09:30" },
+    { category: "doors", icon: "cab-door-left.svg", title: "Förardörren har öppnats", when: "Today • 09:28" },
+    { category: "alarm", icon: "motion-sensor-cab-disabled.svg", title: "Larmet har stängts av", when: "Today • 06:15" },
+    { category: "doors", icon: "lock-unlocked.svg", title: "Dörrarna har låsts upp", when: "Today • 06:15" },
+    { category: "alarm", icon: "speaker-panic-alarm.svg", title: "Larmet gick: panikknappen trycktes", when: "Tuesday • 03:09", where: "Hytten" },
+  );
+}
 if (params.get("doors") === "locked") {
   vehicleStatus.doors.list.forEach((d) => Object.assign(d, { state: "locked", open: false }));
   vehicleStatus.doors.changedAt = "today, 09:30";

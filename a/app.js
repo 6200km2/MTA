@@ -6,9 +6,11 @@ const historyGroups = [
   {
     label: "Larmhistorik",
     items: [
-      { icon: "cab-door-left.svg", title: "Förardörren har öppnats", meta: "Idag • 09:35" },
-      { icon: "motion-sensor-cab.svg", title: "Rörelse har upptäckts i hytten", meta: "Igår • 02:06" },
-      { icon: "speaker-panic-alarm.svg", title: "Panikalarmet har aktiverats", meta: "Tisdag • 03:09" },
+      // User test: A is always shown last, with situation 3 (B/C show 1 and 2): a door left
+      // unlocked (closed), alarm off, the panic alarm went off last night.
+      { icon: "cab-door-left.svg", title: "Passagerardörren har öppnats", meta: "Idag • 09:20" },
+      { icon: "speaker-panic-alarm.svg", title: "Panikalarmet har aktiverats", meta: "Igår • 03:09" },
+      { icon: "motion-sensor-cab.svg", title: "Rörelse har upptäckts i hytten", meta: "Måndag • 02:06" },
     ],
   },
 ];

@@ -10,8 +10,10 @@
   apply();
   dark.addEventListener("change", apply);
 
+  const situation = params.get("s"); // which situation the alternative shows (see app.js)
   const keep = (extra) => {
     const q = new URLSearchParams(extra);
+    if (situation) q.set("s", situation);
     if (theme) q.set("theme", theme);
     const s = q.toString();
     return s ? `?${s}` : "";
