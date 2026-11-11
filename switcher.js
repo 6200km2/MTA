@@ -1,9 +1,8 @@
 // User-test switcher: a small A / B / C pill for the moderator to move between the alternatives.
 //
-// Hidden from participants (they would tap through A / B / C and skip the flow). The moderator
-// shows / hides it by pressing and holding the status bar (the 9:41 strip at the top) for about a
-// second; it then stays shown for this browser tab (sessionStorage). ?mod=1 shows it right away,
-// ?switcher=off never shows it (e.g. for screenshots).
+// Shown by default (the moderator tells participants when to switch). Pressing and holding the
+// status bar (the 9:41 strip at the top) for about a second hides / shows it; the choice stays for
+// this browser tab (sessionStorage). ?switcher=off never shows it (e.g. for screenshots).
 //
 // A switch always starts the new alternative from the vehicle list (Fordon -> Demo FH Classic ->
 // Larm och lås), so every alternative begins the same way as the first one. Keeps ?theme=….
@@ -14,9 +13,9 @@
   const KEY = "mta.moderator";
   const read = () => {
     try {
-      return sessionStorage.getItem(KEY) === "1";
+      return sessionStorage.getItem(KEY) !== "0"; // shown unless hidden on purpose
     } catch {
-      return false;
+      return true;
     }
   };
   const write = (on) => {
@@ -26,7 +25,6 @@
       // storage blocked: the pill still toggles on this page
     }
   };
-  if (params.get("mod") === "1") write(true);
 
   const inA = /\/a\/(index\.html)?$/.test(location.pathname);
   const root = inA ? "../" : "./";
