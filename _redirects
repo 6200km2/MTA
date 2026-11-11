@@ -1,2 +1,2 @@
-# Netlify: the site root opens the moderator start page (index.html is alternative B/C)
-/  /test.html  302!
+# Netlify: the site root opens the prototype right away (vehicle list -> Larm och lås, B by default)
+/  /vehicles.html  302!
