@@ -195,3 +195,22 @@
 .f-icons-tip + .direction {
   margin-top: 12px;
 }
+
+/* Historik row: title + one grey line (same look as C's rows) */
+.f-history-link {
+  min-height: 64px;
+}
+
+.f-history-link__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+
+.f-history-link__meta {
+  color: var(--color-text-secondary);
+  font-size: var(--caption-size);
+  line-height: var(--caption-line-height);
+  letter-spacing: var(--caption-letter-spacing);
+}
