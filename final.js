@@ -198,7 +198,7 @@
       box.append(img(e.icon));
       const t = el("div", "list-item__text");
       const time = g.day === "Tidigare" ? `${e.when[0]} ${e.when[1]}` : e.when[1];
-      t.append(el("p", "list-item__title", e.title), el("p", "list-item__meta", e.by ? `${time} · ${e.by}` : time));
+      t.append(el("p", "list-item__title", e.title), el("p", "list-item__meta", e.by ? `${time} • ${e.by}` : time));
       c.append(box, t);
       li.append(c);
       if (i < g.items.length - 1) li.append(img("divider-line.svg", "list-item__divider"));
@@ -208,7 +208,7 @@
     sec.append(ul);
     hist.append(sec);
   }
-  const share = el("button", "f-share", "Dela historik");
+  const share = el("button", "history-link f-share", "Dela historik");
   share.type = "button";
   hist.append(share);
   const page = $("f-history-page");

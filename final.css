@@ -68,10 +68,6 @@
 /* open window: a short red line just outside the driver's side, same weight as the door marks */
 .f-window { stroke-linecap: round; }
 
-/* the open door / window in the row: red, like the line on the drawing */
-.status-row__value[data-alert] {
-  color: var(--color-door-open);
-}
 
 /* ---------- History page ---------- */
 .history-page[hidden] {
@@ -91,15 +87,6 @@
   gap: 8px;
 }
 
-/* an alarm that went off stands out: red icon plate */
-.f-event--alarm .list-item__icon {
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--color-door-open) 14%, transparent);
-}
-
-.f-event--alarm .list-item__title {
-  font-weight: 600;
-}
 
 .f-history__note {
   margin: 0;
@@ -108,17 +95,9 @@
   line-height: var(--caption-line-height);
 }
 
-/* share the history (e.g. for a police report): a quiet outline button */
-.f-share {
-  min-height: 48px;
-  border: 1px solid var(--color-text-primary);
-  border-radius: 99px;
-  background: transparent;
-  color: var(--color-text-primary);
-  font: inherit;
-  font-size: var(--body-size);
-  font-weight: 600;
-  cursor: pointer;
+/* share the history (e.g. for a police report): the same card as "Visa all historik", no chevron */
+.f-share::after {
+  display: none;
 }
 
 /* ---------- Icons only (?layout=icons): the state is in the icon, words on tap ---------- */
