@@ -1,58 +1,31 @@
 <!doctype html>
-<html lang="sv">
+<html lang="sv" data-default-variant="4">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="color-scheme" content="light dark" />
   <title>Larm och lås</title>
   <link rel="stylesheet" href="styles.css?v=20261111h" />
-  <link rel="stylesheet" href="final.css?v=20261113k" />
+  <link rel="stylesheet" href="concept.css?v=20261113d" />
+  <link rel="stylesheet" href="final.css?v=20261113l" />
 </head>
 <body>
-  <!-- Final design after the user test (5 students, 2026-11-12). See README / the results doc.
-       One screen (C) + top view of the truck with the red open door (B), no check mark next to the
-       time (A): each state says when it happened, and "Uppdaterad" is the time the app checked.
-       ?s=2 all locked, alarm on · ?window=open driver window open · ?history=open · ?truck=photo photo instead of line drawing · ?theme=dark|light -->
+  <!-- Final design after the user test (5 students, 2026-11-12), concept 4 (concept.js):
+       - whole truck when all is fine (B: P3, P5), zooms into the cab when something needs a look (C: P1)
+       - three icons with one word each (A: P1, P4); a time only on what is wrong, the rest in Historik
+       - alarm in the picture only as waves when it is on; neutral reminder only when needed
+       ?s=2 all locked + alarm on · ?window=open · ?truck=line · ?history=open · ?still=1 · ?theme=dark|light -->
   <div class="screen">
     <header class="app-bar">
       <nav class="nav-bar">
-        <a class="icon-button" href="dashboard.html" aria-label="Tillbaka" id="back-button">
+        <a class="icon-button" href="dashboard.html" aria-label="Tillbaka">
           <img src="assets/icons/chevron-left.svg" alt="" />
         </a>
         <h1 class="nav-bar__title">Larm och lås</h1>
         <img class="nav-bar__divider" src="assets/icons/divider-line-appbar.svg" alt="" />
       </nav>
     </header>
-
-    <main class="content f-content">
-      <!-- 1. The truck now: small top view, red line on an open door, alarm waves in the cab when it is on -->
-      <div class="f-hero" id="f-hero" data-view="line">
-        <div class="f-figure">
-          <img class="f-figure__image" id="f-image" src="assets/images/truck-top-line.png" alt="" draggable="false" />
-          <svg class="door-overlay f-figure__overlay" id="f-overlay" viewBox="0 0 1024 1536" aria-hidden="true" focusable="false"></svg>
-        </div>
-      </div>
-
-      <!-- When the app checked with the truck (named, not next to a state) -->
-      <p class="f-updated">
-        <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5v3h-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
-        <span id="f-updated"></span>
-      </p>
-
-      <!-- 2. Doors, windows and alarm in one card: state word + since when -->
-      <ul class="list f-status" id="f-status" aria-label="Dörrar, fönster och larm"></ul>
-
-      <!-- 3. Reminder (the original neutral info box, not a warning), only when something needs it -->
-      <div class="direction f-direction" id="f-action" hidden>
-        <p class="direction__text" id="f-action-text"></p>
-        <button class="direction__close" type="button" id="f-action-close" aria-label="Stäng">
-          <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
-        </button>
-      </div>
-
-      <!-- 4. History: one row; the events open on their own page (?history=open opens it) -->
-      <button class="history-link f-history-link" type="button" id="f-all">Historik</button>
-    </main>
+    <main class="content k-content" id="k-main"></main>
 
     <!-- History page: all events by day, newest first; alarms that went off stand out -->
     <section class="history-page" id="f-history-page" role="dialog" aria-modal="true" aria-labelledby="f-history-title" hidden>
@@ -67,6 +40,6 @@
     </section>
   </div>
 
-  <script src="final.js?v=20261113n"></script>
+  <script src="concept.js?v=20261113d"></script>
 </body>
 </html>
