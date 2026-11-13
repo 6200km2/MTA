@@ -163,7 +163,7 @@
   // Historik row: the latest alarm from today or yesterday, else that nothing went off
   const recentAlarm = S.events.find((e) => e.alarm && /^(Idag|Igår)$/.test(e.when[0]));
   const meta = $("f-history-meta");
-  meta.textContent = recentAlarm ? `Larmet gick ${recentAlarm.when[0].toLowerCase()} ${recentAlarm.when[1]}` : "Inget larm sedan igår";
+  meta.textContent = recentAlarm ? `Larmet gick ${recentAlarm.when[0].toLowerCase()} ${recentAlarm.when[1]}` : "Inget larm idag eller igår";
   if (recentAlarm) meta.dataset.alert = "true";
 
   // ---------- 4. History page: by day, who did it, kept 30 days, share ----------
