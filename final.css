@@ -24,15 +24,15 @@
   mask-image: linear-gradient(to bottom, #000 72%, transparent 100%);
 }
 
-/* whole truck (?view=whole): the same size as B's line drawing (241 x 362) */
+/* whole truck (?view=whole): the same height as the cab view (286), so the screen still fits */
 .f-stage[data-frame="whole"] {
-  width: 241px;
-  height: 362px;
+  width: 191px;
+  height: 286px;
   overflow: visible;
 }
 
 .f-stage[data-frame="whole"] .f-zoom {
-  transform: scale(0.2354);
+  transform: scale(0.1862);
 }
 
 /* the 1024 x 1536 drawing, moved by transform */
@@ -175,3 +175,7 @@
 .f-icons-tip + .direction {
   margin-top: 12px;
 }
+
+/* whole truck is drawn smaller: thicker marks so they read the same as in the cab view */
+.f-stage[data-frame="whole"] .door-overlay__line { stroke-width: 26; }
+.f-stage[data-frame="whole"] .alarm-wave { stroke-width: 14; }
