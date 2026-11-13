@@ -1,20 +1,21 @@
 <!doctype html>
-<html lang="sv" data-default-variant="4">
+<html lang="sv">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="color-scheme" content="light dark" />
   <title>Larm och lås</title>
   <link rel="stylesheet" href="styles.css?v=20261111h" />
-  <link rel="stylesheet" href="concept.css?v=20261113d" />
-  <link rel="stylesheet" href="final.css?v=20261113l" />
+  <link rel="stylesheet" href="final.css?v=20261113n" />
 </head>
 <body>
-  <!-- Final design after the user test (5 students, 2026-11-12), concept 4 (concept.js):
-       - whole truck when all is fine (B: P3, P5), zooms into the cab when something needs a look (C: P1)
-       - three icons with one word each (A: P1, P4); a time only on what is wrong, the rest in Historik
-       - alarm in the picture only as waves when it is on; neutral reminder only when needed
-       ?s=2 all locked + alarm on · ?window=open · ?truck=line · ?history=open · ?still=1 · ?theme=dark|light -->
+  <!-- Final design: C's layout (the steadiest in the test) with what the test asked for:
+       - each row says when that state began (all 5 read "Idag 09:41" as the event time)
+       - Fönster row (P1, P3; P4, P5 agreed)
+       - no crossed-out badge when the alarm is off (P1 did not recognise it); waves when it is on
+       - the cab big + the whole truck small in the corner; tap to switch (B vs C)
+       - events on their own Historik page (by day, who, 30 days, share)
+       ?s=2 all locked + alarm on · ?window=open · ?zoom=whole · ?history=open · ?theme=dark|light -->
   <div class="screen">
     <header class="app-bar">
       <nav class="nav-bar">
@@ -25,7 +26,44 @@
         <img class="nav-bar__divider" src="assets/icons/divider-line-appbar.svg" alt="" />
       </nav>
     </header>
-    <main class="content k-content" id="k-main"></main>
+
+    <main class="content">
+      <!-- The truck: cab big (C), whole truck small in the corner (B). Tap the picture / the corner to switch. -->
+      <div class="status-hero status-hero--truck f-hero" id="f-hero">
+        <div class="f-stage" id="f-stage" role="button" tabindex="0">
+          <div class="f-zoom">
+            <img class="f-zoom__image" src="assets/images/truck-top-line.png" alt="" draggable="false" />
+            <svg class="door-overlay f-zoom__overlay" id="f-overlay" viewBox="0 0 1024 1536" aria-hidden="true" focusable="false"></svg>
+          </div>
+          <button class="f-mini" id="f-mini" type="button" aria-label="Visa hela lastbilen">
+            <!-- simple outline of the whole truck: the cab (what is shown big) in ink, the rest light -->
+            <svg class="f-mini__overlay" id="f-mini-overlay" viewBox="0 0 40 64" aria-hidden="true" focusable="false">
+              <rect class="f-mini__rest" x="13" y="27" width="14" height="30" rx="2" />
+              <rect class="f-mini__rest" x="10.5" y="40" width="5" height="9" rx="1.5" />
+              <rect class="f-mini__rest" x="24.5" y="40" width="5" height="9" rx="1.5" />
+              <rect class="f-mini__rest" x="10.5" y="50" width="5" height="9" rx="1.5" />
+              <rect class="f-mini__rest" x="24.5" y="50" width="5" height="9" rx="1.5" />
+              <rect class="f-mini__cab" x="9" y="5" width="22" height="21" rx="4" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Doors, windows, alarm: C's rows, the time = when that state began -->
+      <ul class="list status-list" id="f-status" aria-label="Dörrar, fönster och larm"></ul>
+
+      <!-- Reminder: C's neutral info box, only when something needs doing -->
+      <div class="direction" id="f-action" hidden>
+        <p class="direction__text" id="f-action-text"></p>
+        <button class="direction__close" type="button" id="f-action-close" aria-label="Stäng">
+          <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
+        </button>
+      </div>
+
+      <div class="history">
+        <button class="history-link" type="button" id="f-all">Historik</button>
+      </div>
+    </main>
 
     <!-- History page: all events by day, newest first; alarms that went off stand out -->
     <section class="history-page" id="f-history-page" role="dialog" aria-modal="true" aria-labelledby="f-history-title" hidden>
@@ -40,6 +78,6 @@
     </section>
   </div>
 
-  <script src="concept.js?v=20261113d"></script>
+  <script src="final.js?v=20261113n"></script>
 </body>
 </html>

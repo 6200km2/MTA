@@ -1,100 +1,121 @@
-/* Final design (after the user test). Builds on styles.css (tokens, app bar, lists, overlay marks). */
+/* Final design: C's layout (styles.css: status-hero, status-list, direction, history-link)
+   plus the cab / whole-truck picture and the History page. */
 
-.f-content {
-  padding-bottom: 24px;
-}
-
-/* ---------- 1. Truck: small top view of the cab (text leads, the picture supports) ---------- */
+/* ---------- Truck picture: same box as C's cab view (340 x 286) ---------- */
 .f-hero {
-  display: flex;
-  justify-content: center;
-  padding-top: 16px;
+  padding-top: 24px;
 }
 
-/* Shows the cab area of the 1024 x 1536 image (x 60-964, y 40-720) at 0.26 scale */
-.f-figure {
+.f-stage {
   position: relative;
-  width: 235px;
-  height: 177px;
+  width: 340px;
+  height: 286px;
   overflow: hidden;
+  cursor: default;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.f-figure__image,
-.f-figure__overlay {
+.f-stage[data-zoom="whole"] {
+  cursor: zoom-in;
+}
+
+.f-stage:focus-visible {
+  outline: 2px solid var(--color-text-primary);
+  outline-offset: 2px;
+}
+
+/* the 1024 x 1536 drawing, moved by transform */
+.f-zoom {
   position: absolute;
-  left: -15.6px; /* 60 x 0.26 */
-  top: -10.4px; /* 40 x 0.26 */
-  width: 266.2px; /* 1024 x 0.26 */
-  height: 399.4px; /* 1536 x 0.26 */
+  left: 0;
+  top: 0;
+  width: 1024px;
+  height: 1536px;
+  transform-origin: 0 0;
+  /* cab: the same crop as C (x 60-964, scale 0.376) */
+  transform: translate(-22.6px, 0) scale(0.376);
+  transition: transform 0.6s cubic-bezier(0.3, 0.7, 0.2, 1);
+}
+
+/* whole truck: fits the height (1536 x 0.186 = 286), centred */
+.f-stage[data-zoom="whole"] .f-zoom {
+  transform: translate(74.8px, 0) scale(0.1862);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .f-zoom { transition: none; }
+}
+
+.f-zoom__image,
+.f-zoom__overlay {
+  position: absolute;
+  inset: 0;
+  width: 1024px;
+  height: 1536px;
   max-width: none;
 }
 
-.f-figure__image {
-  object-fit: cover;
-}
-
-:root[data-theme="dark"] [data-view="line"] .f-figure__image {
+:root[data-theme="dark"] .f-zoom__image {
   filter: invert(1);
-  opacity: 0.8;
 }
 
-/* On the photo the cab floor is dark: light waves */
-[data-view="photo"] .alarm-wave { stroke: #ffffff; }
-[data-view="photo"] .alarm-wave__dot { fill: #ffffff; }
-
-/* ---------- 2. Update time: small, centered under the truck ---------- */
-.f-updated {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 6px;
-  margin: 8px 0 0;
-  color: var(--color-text-secondary);
-  font-size: var(--caption-size);
-  line-height: var(--caption-line-height);
+/* open window: the glass part of the door edge, dashed */
+.f-window {
+  stroke-dasharray: 22 14;
+  stroke-linecap: butt;
 }
 
-/* Doors + alarm: one card */
-.f-status {
-  margin: 16px var(--page-gutter) 0;
+/* ---------- Minimap: the whole truck in the corner while the cab is big ---------- */
+.f-mini {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 48px;
+  height: 72px;
+  padding: 0;
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-large);
+  background: var(--color-surface-card);
+  overflow: hidden;
+  cursor: zoom-out;
+  transition: opacity 0.25s ease;
 }
 
-/* ---------- 3. Reminder: the original neutral info box (styles.css .direction) ---------- */
-.f-direction {
-  margin-top: 16px;
-  margin-bottom: 0;
+.f-stage[data-zoom="whole"] .f-mini {
+  opacity: 0;
+  pointer-events: none;
 }
 
-.f-value {
-  flex-shrink: 0;
-  margin: 0;
-  font-size: var(--body-size);
-  line-height: var(--body-line-height);
-  font-weight: 700;
+.f-mini__overlay {
+  position: absolute;
+  inset: 4px;
+  width: calc(100% - 8px);
+  height: calc(100% - 8px);
 }
 
-.f-value[data-tone="open"] {
+.f-mini__cab {
+  fill: none;
+  stroke: var(--color-text-primary);
+  stroke-width: 1.8;
+}
+
+.f-mini__rest {
+  fill: none;
+  stroke: var(--color-text-secondary);
+  stroke-width: 1.2;
+  opacity: 0.6;
+}
+
+.f-mini__dot {
+  fill: var(--color-door-open);
+}
+
+/* the open door / window in the row: red, like the line on the drawing */
+.status-row__value[data-alert] {
   color: var(--color-door-open);
 }
 
-.f-note {
-  margin: 4px 0 0;
-  color: var(--color-text-secondary);
-  font-size: var(--caption-size);
-  line-height: var(--caption-line-height);
-}
-
-.f-divider {
-  display: block;
-}
-
-/* ---------- 5. History ---------- */
-.f-history-link {
-  box-sizing: border-box;
-  width: calc(100% - 2 * var(--page-gutter));
-  margin: 16px var(--page-gutter) 0;
-}
-
+/* ---------- History page ---------- */
 .history-page[hidden] {
   display: none;
 }
@@ -112,7 +133,7 @@
   gap: 8px;
 }
 
-/* An alarm that went off stands out: red icon plate, bold title */
+/* an alarm that went off stands out: red icon plate */
 .f-event--alarm .list-item__icon {
   border-radius: 50%;
   background: color-mix(in srgb, var(--color-door-open) 14%, transparent);
@@ -129,7 +150,7 @@
   line-height: var(--caption-line-height);
 }
 
-/* Share the history (e.g. for a police report): a quiet outline button */
+/* share the history (e.g. for a police report): a quiet outline button */
 .f-share {
   min-height: 48px;
   border: 1px solid var(--color-text-primary);
