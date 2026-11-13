@@ -11,13 +11,28 @@
   width: 340px;
   height: 286px;
   overflow: hidden;
-  /* the drawing fades out under the bunk instead of being cut off */
-  -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent 100%);
-  mask-image: linear-gradient(to bottom, #000 72%, transparent 100%);
+
   cursor: default;
   -webkit-tap-highlight-color: transparent;
 }
 
+
+/* cab view: the drawing fades out under the bunk instead of being cut off */
+.f-stage[data-frame="cab"] {
+  -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 72%, transparent 100%);
+}
+
+/* whole truck (?view=whole): the same size as B's line drawing (241 x 362) */
+.f-stage[data-frame="whole"] {
+  width: 241px;
+  height: 362px;
+  overflow: visible;
+}
+
+.f-stage[data-frame="whole"] .f-zoom {
+  transform: scale(0.2354);
+}
 
 /* the 1024 x 1536 drawing, moved by transform */
 .f-zoom {
@@ -49,11 +64,11 @@
 [data-view="photo"] .alarm-wave { stroke: #ffffff; }
 [data-view="photo"] .alarm-wave__dot { fill: #ffffff; }
 
-/* open window: the glass part of the door edge, dashed */
-.f-window {
-  stroke-dasharray: 22 14;
-  stroke-linecap: butt;
-}
+/* open window: red badge with the window icon, pinned to the driver's side */
+.f-winbadge__pin { stroke: var(--color-door-open); stroke-width: 10; stroke-linecap: round; }
+.f-winbadge__plate { fill: var(--color-door-open); }
+.f-winbadge__glyph { fill: none; stroke: #ffffff; stroke-width: 1.6; stroke-linejoin: round; }
+.f-stage[data-frame="whole"] .f-winbadge__pin { stroke-width: 16; }
 
 /* the open door / window in the row: red, like the line on the drawing */
 .status-row__value[data-alert] {
