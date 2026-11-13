@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <title>Larm och lås</title>
+  <link rel="stylesheet" href="styles.css?v=20261111h" />
+  <link rel="stylesheet" href="final.css?v=20261114c" />
+</head>
+<body>
+  <!-- Final design: C's layout (the steadiest in the test) with what the test asked for:
+       - each row says when that state began (all 5 read "Idag 09:41" as the event time)
+       - an open window: push notification (notis.html), a short red line by the window on the drawing, reminder box
+       - no crossed-out badge when the alarm is off (P1 did not recognise it); waves when it is on
+       - events on their own Historik page (by day, who, 30 days, share)
+       ?s=2 all locked + alarm on · ?window=open · ?view=whole · ?layout=icons · ?history=open · ?theme=dark|light -->
+  <div class="screen">
+    <header class="app-bar">
+      <nav class="nav-bar">
+        <a class="icon-button" href="dashboard.html" aria-label="Tillbaka">
+          <img src="assets/icons/chevron-left.svg" alt="" />
+        </a>
+        <h1 class="nav-bar__title">Larm och lås</h1>
+        <img class="nav-bar__divider" src="assets/icons/divider-line-appbar.svg" alt="" />
+      </nav>
+    </header>
+
+    <main class="content">
+      <!-- The truck: C's cab view; line drawing or photo (?truck=photo) -->
+      <div class="status-hero status-hero--truck f-hero" id="f-hero">
+        <div class="f-stage" id="f-stage">
+          <div class="f-zoom">
+            <img class="f-zoom__image" src="assets/images/truck-top-line.png" alt="" draggable="false" />
+            <svg class="door-overlay f-zoom__overlay" id="f-overlay" viewBox="0 0 1024 1536" aria-hidden="true" focusable="false"></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Doors, windows, alarm: C's rows, the time = when that state began -->
+      <ul class="list status-list" id="f-status" aria-label="Dörrar, fönster och larm"></ul>
+      <!-- ?layout=icons: three icons only, the words on tap -->
+      <ul class="f-icons" id="f-icons" aria-label="Dörrar, fönster och larm" hidden></ul>
+      <p class="f-icons-tip" id="f-icons-tip" role="status" hidden></p>
+
+      <!-- Reminder: C's neutral info box, only when something needs doing -->
+      <div class="direction" id="f-action" hidden>
+        <p class="direction__text" id="f-action-text"></p>
+        <button class="direction__close" type="button" id="f-action-close" aria-label="Stäng">
+          <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
+        </button>
+      </div>
+
+      <div class="history">
+        <!-- Senaste: the two latest events (an alarm that went off first), as tested in C; the rest on the Historik page -->
+        <section class="list-group">
+          <p class="list-group__label">Senaste</p>
+          <ul class="list" id="f-recent"></ul>
+        </section>
+        <button class="history-link" type="button" id="f-all">Visa all historik</button>
+      </div>
+    </main>
+
+    <!-- History page: all events by day, newest first; alarms that went off stand out -->
+    <section class="history-page" id="f-history-page" role="dialog" aria-modal="true" aria-labelledby="f-history-title" hidden>
+      <nav class="nav-bar history-page__bar">
+        <button class="icon-button" type="button" aria-label="Tillbaka" id="f-history-back">
+          <img src="assets/icons/chevron-left.svg" alt="" />
+        </button>
+        <h2 class="nav-bar__title" id="f-history-title">Historik</h2>
+        <img class="nav-bar__divider" src="assets/icons/divider-line-appbar.svg" alt="" />
+      </nav>
+      <div class="f-history" id="f-history"></div>
+    </section>
+  </div>
+
+  <script src="final.js?v=20261114a"></script>
+</body>
+</html>

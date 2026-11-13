@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Notis – fönster öppet</title>
+  <style>
+    /* Push notification proposal: an open window is not a row on the screen, it is a notification
+       when the truck is locked with a window open (like the Volvo Cars app). Tap = opens Larm och lås. */
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background: linear-gradient(170deg, #3b4a5a 0%, #1d2630 55%, #0f141a 100%);
+      color: #fff;
+    }
+    .lock {
+      max-width: 430px;
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: calc(64px + env(safe-area-inset-top)) 12px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .lock__date { margin: 0; font-size: 20px; font-weight: 600; opacity: 0.85; }
+    .lock__time { margin: 0; font-size: 92px; line-height: 1; font-weight: 700; letter-spacing: -2px; }
+    .notis {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+      margin-top: 260px;
+      padding: 14px;
+      border-radius: 22px;
+      background: rgba(245, 245, 245, 0.78);
+      color: #111;
+      text-decoration: none;
+      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: blur(20px);
+    }
+    .notis__icon {
+      flex-shrink: 0;
+      width: 38px;
+      height: 38px;
+      border-radius: 9px;
+      background: #1f2a33;
+      display: grid;
+      place-items: center;
+    }
+    .notis__glyph {
+      width: 22px;
+      height: 22px;
+      background: #fff;
+      -webkit-mask: url(assets/icons/app/alarm-lock.png) center / contain no-repeat;
+      mask: url(assets/icons/app/alarm-lock.png) center / contain no-repeat;
+    }
+    .notis__body { flex: 1; min-width: 0; }
+    .notis__head { display: flex; justify-content: space-between; gap: 8px; }
+    .notis__title { margin: 0; font-size: 15px; line-height: 20px; font-weight: 600; }
+    .notis__when { margin: 0; font-size: 13px; line-height: 20px; color: #6b6b6b; }
+    .notis__text { margin: 2px 0 0; font-size: 15px; line-height: 20px; }
+  </style>
+</head>
+<body>
+  <main class="lock">
+    <p class="lock__date">torsdag 13 november</p>
+    <p class="lock__time">9:41</p>
+    <a class="notis" href="final.html?s=2&amp;window=open">
+      <span class="notis__icon"><span class="notis__glyph"></span></span>
+      <span class="notis__body">
+        <span class="notis__head">
+          <span class="notis__title">Förarfönstret är öppet</span>
+          <span class="notis__when">nu</span>
+        </span>
+        <span class="notis__text">Lastbilen är låst. Stäng fönstret vid lastbilen.</span>
+      </span>
+    </a>
+  </main>
+</body>
+</html>

@@ -1,0 +1,65 @@
+// Event history shown on the Alarm & Lock screen.
+// Edit this data to change the list; the markup below is generated from it.
+const ICONS = "../assets/icons/";
+
+const historyGroups = [
+  {
+    label: "Larmhistorik",
+    items: [
+      // User test: A is always shown last, with situation 3 (B/C show 1 and 2): a door left
+      // unlocked (closed), alarm off, the panic alarm went off last night.
+      { icon: "cab-door-left.svg", title: "Passagerardörren har öppnats", meta: "Idag • 09:20" },
+      { icon: "speaker-panic-alarm.svg", title: "Panikalarmet har aktiverats", meta: "Igår • 03:09" },
+      { icon: "motion-sensor-cab.svg", title: "Rörelse har upptäckts i hytten", meta: "Måndag • 02:06" },
+    ],
+  },
+];
+
+function el(tag, className, text) {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (text) node.textContent = text;
+  return node;
+}
+
+function renderItem(item, isLast) {
+  const li = el("li", "list-item");
+  const content = el("div", "list-item__content");
+
+  const iconBox = el("div", "list-item__icon");
+  const icon = el("img", item.iconClass);
+  icon.src = ICONS + item.icon;
+  icon.alt = "";
+  iconBox.append(icon);
+
+  const text = el("div", "list-item__text");
+  text.append(el("p", "list-item__title", item.title), el("p", "list-item__meta", item.meta));
+
+  content.append(iconBox, text);
+  li.append(content);
+
+  if (!isLast) {
+    const divider = el("img", "list-item__divider");
+    divider.src = ICONS + "divider-line.svg";
+    divider.alt = "";
+    li.append(divider);
+  }
+  return li;
+}
+
+function renderHistory(container, groups) {
+  for (const group of groups) {
+    const section = el("section", "list-group");
+    section.append(el("p", "list-group__label", group.label));
+
+    const list = el("ul", "list");
+    group.items.forEach((item, i) => list.append(renderItem(item, i === group.items.length - 1)));
+    section.append(list);
+
+    container.append(section);
+  }
+}
+
+renderHistory(document.getElementById("history"), historyGroups);
+
+document.getElementById("back-button").addEventListener("click", () => window.history.back());

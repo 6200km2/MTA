@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <title>Fordon</title>
+  <link rel="stylesheet" href="flow.css?v=20261111h" />
+</head>
+<body>
+  <div class="screen">
+    <header class="bar">
+      <h1 class="title-bar" style="margin:0">Fordon</h1>
+    </header>
+
+    <!-- Only the first truck opens the flow (user test); the others are shown for context. -->
+    <ul class="fleet" aria-label="Fordon">
+      <li style="display:contents">
+        <a class="fleet__item" data-flow="dashboard" href="dashboard.html">
+          <img class="fleet__thumb" src="assets/images/fleet/thumb-1.png" alt="" />
+          <span class="fleet__text">
+            <p class="fleet__name">Demo FH Classic</p>
+            <p class="fleet__sub">TGW222 • Primär lastbil</p>
+          </span>
+          <span class="ico ico--star-filled fleet__star--primary" role="img" aria-label="Primär lastbil"></span>
+        </a>
+      </li>
+      <li class="fleet__item">
+        <img class="fleet__thumb" src="assets/images/fleet/thumb-2.png" alt="" />
+        <span class="fleet__text"><p class="fleet__name">Demo FH 16</p><p class="fleet__sub">TGW333</p></span>
+        <span class="ico ico--star-outline" aria-hidden="true"></span>
+      </li>
+      <li class="fleet__item">
+        <img class="fleet__thumb" src="assets/images/fleet/thumb-3.png" alt="" />
+        <span class="fleet__text"><p class="fleet__name">Demo FH Electric</p><p class="fleet__sub">MLB007</p></span>
+        <span class="ico ico--star-outline" aria-hidden="true"></span>
+      </li>
+      <li class="fleet__item">
+        <img class="fleet__thumb" src="assets/images/fleet/thumb-4.png" alt="" />
+        <span class="fleet__text"><p class="fleet__name">Demo FL Electric</p><p class="fleet__sub">YHN009</p></span>
+        <span class="ico ico--star-outline" aria-hidden="true"></span>
+      </li>
+    </ul>
+
+    <!-- Search: shown for context, not active in the prototype -->
+    <div class="search" aria-hidden="true">
+      <span class="ico ico--search"></span>
+      <span>Fordonsnamn eller registreringsnummer</span>
+    </div>
+  </div>
+  <script src="flow.js?v=20261111b"></script>
+  <script src="switcher.js?v=20261111g"></script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Larm och lås</title>
+  <link rel="stylesheet" href="styles.css?v=20261111h" />
+</head>
+<body>
+  <div class="screen">
+    <!-- App bar (no fake iOS status bar: the phone shows its own) -->
+    <header class="app-bar">
+      <nav class="nav-bar">
+        <button class="icon-button" type="button" aria-label="Tillbaka" id="back-button">
+          <img src="../assets/icons/chevron-left.svg" alt="" />
+        </button>
+        <h1 class="nav-bar__title">Larm och lås</h1>
+        <img class="nav-bar__divider" src="../assets/icons/divider-line-appbar.svg" alt="" />
+      </nav>
+    </header>
+
+    <main class="content">
+      <!-- Current alarm / door status -->
+      <section class="status-overview" aria-label="Aktuellt läge">
+        <div class="status-item">
+          <img class="status-item__icon" src="../assets/icons/motion-sensor-cab-disabled.svg" alt="" draggable="false" />
+          <p class="status-item__label"><strong>Larm:</strong> <span>av</span></p>
+          <span class="tag">
+            <img class="tag__icon" src="../assets/icons/checkmark-circle.svg" alt="" draggable="false" />
+            <span>Idag 09:41</span>
+          </span>
+        </div>
+        <div class="status-item">
+          <img class="status-item__icon" src="../assets/icons/lock-unlocked.svg" alt="" draggable="false" />
+          <p class="status-item__label"><strong>Dörrar:</strong> <span>olåsta</span></p>
+          <span class="tag">
+            <img class="tag__icon" src="../assets/icons/checkmark-circle.svg" alt="" draggable="false" />
+            <span>Idag 09:41</span>
+          </span>
+        </div>
+      </section>
+
+      <!-- Event history, rendered from data in app.js -->
+      <div class="history" id="history"></div>
+    </main>
+
+  </div>
+
+  <script src="app.js?v=20261111l"></script>
+  <script src="../switcher.js?v=20261111g"></script>
+</body>
+</html>

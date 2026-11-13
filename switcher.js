@@ -1,0 +1,59 @@
+// User-test switcher: a small A / B / C pill for the moderator to move between the alternatives.
+//
+// Shown by default (the moderator tells participants when to switch). ?switcher=off hides it
+// (e.g. for screenshots).
+//
+// A switch always starts the new alternative from the vehicle list (Fordon -> Demo FH Classic ->
+// Larm och lås), so every alternative begins the same way as the first one, with the next situation
+// (?s=1, 2, 3 – see app.js), so it is answered from the screen and not from memory. Keeps ?theme=….
+(function () {
+  const params = new URLSearchParams(location.search);
+  if (params.get("switcher") === "off") return;
+
+  const inA = /\/a\/(index\.html)?$/.test(location.pathname);
+  const root = inA ? "../" : "./";
+  const theme = params.get("theme");
+  const extra = theme ? `&theme=${encodeURIComponent(theme)}` : "";
+  const inFlow = /\/(vehicles|dashboard)\.html$/.test(location.pathname);
+  const current = inA ? "a" : params.get("alt") || (inFlow ? "b" : "");
+
+  // In A (always last) the count stays at 3; elsewhere a switch moves on to the next situation.
+  const situationNow = inA ? 3 : Number(params.get("s")) || 1;
+  const nextSituation = Math.min(situationNow + 1, 3);
+
+  const links = [
+    { id: "a", label: "A", title: "A · Dagens app" },
+    { id: "b", label: "B", title: "B · Foto med markeringar" },
+    { id: "c", label: "C", title: "C · Linjeteckning, en skärm" },
+  ];
+
+  const nav = document.createElement("nav");
+  nav.className = inFlow ? "alt-switcher alt-switcher--flow" : "alt-switcher";
+  nav.setAttribute("aria-label", "Testalternativ");
+  for (const l of links) {
+    const a = document.createElement("a");
+    // next alternative = next situation (1 -> 2 -> 3); A always has situation 3 built in
+    a.href = `${root}vehicles.html?alt=${l.id}&s=${nextSituation}${extra}`;
+    a.textContent = l.label;
+    a.title = l.title;
+    if (l.id === current) a.setAttribute("aria-current", "page");
+    nav.append(a);
+  }
+
+  const style = document.createElement("style");
+  style.textContent = `
+    .alt-switcher { position: fixed; top: calc(14px + env(safe-area-inset-top)); right: max(8px, calc(50% - 215px + 8px)); z-index: 20;
+      display: flex; gap: 2px; padding: 2px; border-radius: 99px; background: rgba(20,20,20,.08);
+      font: 600 12px/20px -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; opacity: .7; }
+    .alt-switcher[hidden] { display: none; }
+    .alt-switcher a { min-width: 24px; padding: 0 6px; border-radius: 99px; color: #575757; text-align: center; text-decoration: none; }
+    .alt-switcher a[aria-current="page"] { background: #212121; color: #fff; }
+    .alt-switcher:hover, .alt-switcher:focus-within { opacity: 1; }
+    .alt-switcher--flow { top: calc(66px + env(safe-area-inset-top)); }
+    :root[data-theme="dark"] .alt-switcher { background: rgba(255,255,255,.12); }
+    :root[data-theme="dark"] .alt-switcher a { color: #b0b0b0; }
+    :root[data-theme="dark"] .alt-switcher a[aria-current="page"] { background: #f2f2f2; color: #141414; }
+  `;
+  document.head.append(style);
+  document.body.append(nav);
+})();

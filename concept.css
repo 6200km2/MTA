@@ -1,0 +1,267 @@
+/* Design concepts after the user test. Builds on styles.css (tokens, app bar, info box, overlay marks). */
+
+.k-content {
+  padding-bottom: 24px;
+}
+
+/* ---------- Picture: cab top view ---------- */
+.k-hero {
+  display: flex;
+  justify-content: center;
+  padding-top: 20px;
+}
+
+/* cab area of the 1024 x 1536 image (x 60-964, y 40-720) at 0.3 scale */
+.k-figure {
+  position: relative;
+  width: 271px;
+  height: 204px;
+  overflow: hidden;
+}
+
+.k-figure__image,
+.k-figure__overlay {
+  position: absolute;
+  left: -18px;
+  top: -12px;
+  width: 307.2px;
+  height: 460.8px;
+  max-width: none;
+}
+
+:root[data-theme="dark"] [data-view="line"] .k-figure__image {
+  filter: invert(1);
+  opacity: 0.8;
+}
+
+[data-view="photo"] .alarm-wave { stroke: #ffffff; }
+[data-view="photo"] .alarm-wave__dot { fill: #ffffff; }
+
+/* ---------- A-style icons: icon, label, one word ---------- */
+.k-icons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 24px var(--page-gutter) 0;
+  padding: 0;
+  list-style: none;
+}
+
+.k-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.k-icon__img {
+  width: 48px;
+  height: 48px;
+}
+
+.k-icons--l {
+  margin-top: 48px;
+  row-gap: 24px;
+}
+
+.k-icons--l .k-icon__img {
+  width: 72px;
+  height: 72px;
+}
+
+.k-icon__label {
+  margin: 8px 0 0;
+  color: var(--color-text-secondary);
+  font-size: var(--caption-size);
+  line-height: var(--caption-line-height);
+}
+
+.k-icon__word {
+  margin: 0;
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+.k-icon__where {
+  margin: 0;
+  color: var(--color-door-open);
+  font-size: var(--caption-size);
+  line-height: var(--caption-line-height);
+}
+
+.k-icon[data-alert] .k-icon__word {
+  color: var(--color-door-open);
+}
+
+/* ---------- C-style tiles ---------- */
+.k-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 20px var(--page-gutter) 0;
+  padding: 0;
+  list-style: none;
+}
+
+.k-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 12px;
+  border-radius: var(--radius-large);
+  background: var(--color-surface-card);
+  box-shadow: inset 0 0 0 1.5px transparent;
+}
+
+.k-tile[data-alert] {
+  box-shadow: inset 0 0 0 1.5px var(--color-door-open);
+}
+
+.k-tile__img {
+  width: 32px;
+  height: 32px;
+}
+
+.k-tile__label {
+  margin: 8px 0 0;
+  color: var(--color-text-secondary);
+  font-size: var(--caption-size);
+  line-height: var(--caption-line-height);
+}
+
+.k-tile__word {
+  margin: 0;
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+.k-tile[data-alert] .k-tile__word,
+.k-tile[data-alert] .k-tile__when {
+  color: var(--color-door-open);
+}
+
+.k-tile__when {
+  margin: 2px 0 0;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+/* dark mode: icons are light-mode SVGs */
+:root[data-theme="dark"] .k-icon__img,
+:root[data-theme="dark"] .k-tile__img {
+  filter: invert(1);
+}
+
+/* ---------- Reminder + history ---------- */
+.k-direction {
+  margin: 24px var(--page-gutter) 0;
+}
+
+.k-history-link {
+  box-sizing: border-box;
+  width: calc(100% - 2 * var(--page-gutter));
+  margin: 16px var(--page-gutter) 0;
+}
+
+/* ---------- Concept 4: whole truck, zooms into the cab when something is wrong ---------- */
+.k-stage {
+  position: relative;
+  width: 300px;
+  height: 236px;
+  margin: 20px auto 0;
+  overflow: hidden;
+}
+
+/* the 1024 x 1536 picture; whole truck = scale .1536 (157 x 236), centred */
+.k-zoom {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1024px;
+  height: 1536px;
+  transform-origin: 0 0;
+  transform: translate(71.4px, 0) scale(0.1536);
+  transition: transform 0.9s cubic-bezier(0.3, 0.7, 0.2, 1);
+}
+
+/* cab = x 60-964, y 40-748 → 300 wide */
+.k-stage[data-zoom="cab"] .k-zoom {
+  transform: translate(-19.9px, -13.3px) scale(0.332);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .k-zoom { transition: none; }
+}
+
+.k-zoom__image,
+.k-zoom__overlay {
+  position: absolute;
+  inset: 0;
+  width: 1024px;
+  height: 1536px;
+  max-width: none;
+}
+
+/* marks keep their width at any zoom */
+.k-zoom__overlay * {
+  vector-effect: non-scaling-stroke;
+}
+.k-zoom__overlay .door-overlay__line { stroke-width: 4px; }
+.k-zoom__overlay .alarm-wave { stroke-width: 3px; }
+.k-zoom__overlay .k-window { stroke-width: 6px; stroke-dasharray: 7 4; stroke-linecap: butt; }
+
+:root[data-theme="dark"] .k-stage[data-view="line"] .k-zoom__image {
+  filter: invert(1);
+  opacity: 0.8;
+}
+.k-stage[data-view="photo"] .alarm-wave { stroke: #ffffff; }
+.k-stage[data-view="photo"] .alarm-wave__dot { fill: #ffffff; }
+
+/* three icons, one word each */
+.k-status {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 24px var(--page-gutter) 0;
+  padding: 0;
+  list-style: none;
+}
+
+.k-st {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.k-st__img {
+  width: 40px;
+  height: 40px;
+}
+
+.k-st__word {
+  margin: 6px 0 0;
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+.k-st[data-alert="open"] .k-st__word {
+  color: var(--color-door-open);
+}
+
+.k-st__when {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+:root[data-theme="dark"] .k-st__img {
+  filter: invert(1);
+}

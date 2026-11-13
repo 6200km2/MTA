@@ -1,0 +1,181 @@
+/* Final design: C's layout (styles.css: status-hero, status-list, direction, history-link)
+   plus the cab / whole-truck picture and the History page. */
+
+/* ---------- Truck picture: same box as C's cab view (340 x 286) ---------- */
+.f-hero {
+  padding-top: 8px;
+  padding-bottom: 12px;
+}
+
+.f-stage {
+  position: relative;
+  width: 340px;
+  height: 286px;
+  overflow: hidden;
+
+  cursor: default;
+  -webkit-tap-highlight-color: transparent;
+}
+
+
+/* cab view: the drawing fades out under the bunk instead of being cut off */
+.f-stage[data-frame="cab"] {
+  -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 72%, transparent 100%);
+}
+
+/* whole truck (?view=whole): the same height as the cab view (286), so the screen still fits */
+.f-stage[data-frame="whole"] {
+  width: 191px;
+  height: 286px;
+  overflow: visible;
+}
+
+.f-stage[data-frame="whole"] .f-zoom {
+  transform: scale(0.1862);
+}
+
+/* the 1024 x 1536 drawing, moved by transform */
+.f-zoom {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1024px;
+  height: 1536px;
+  transform-origin: 0 0;
+  /* cab: the same crop as C (x 60-964, scale 0.376) */
+  transform: translate(-22.6px, 0) scale(0.376);
+}
+
+
+.f-zoom__image,
+.f-zoom__overlay {
+  position: absolute;
+  inset: 0;
+  width: 1024px;
+  height: 1536px;
+  max-width: none;
+}
+
+:root[data-theme="dark"] [data-view="line"] .f-zoom__image {
+  filter: invert(1);
+}
+
+/* photo: the cab floor is dark, so the waves are white */
+[data-view="photo"] .alarm-wave { stroke: #ffffff; }
+[data-view="photo"] .alarm-wave__dot { fill: #ffffff; }
+
+/* open window: a short red line just outside the driver's side, same weight as the door marks */
+.f-window { stroke-linecap: round; }
+
+
+/* ---------- History page ---------- */
+.history-page[hidden] {
+  display: none;
+}
+
+.f-history {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 16px var(--page-gutter) 32px;
+}
+
+.f-history .list-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+
+.f-history__note {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--caption-size);
+  line-height: var(--caption-line-height);
+}
+
+/* share the history (e.g. for a police report): the same card as "Visa all historik", no chevron */
+.f-share::after {
+  display: none;
+}
+
+/* ---------- Icons only (?layout=icons): the state is in the icon, words on tap ---------- */
+.f-icons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 4px var(--page-gutter) 0;
+  padding: 8px 0;
+  list-style: none;
+  border-radius: var(--radius-large);
+  background: var(--color-surface-card);
+}
+
+.f-icons[hidden],
+.f-icons-tip[hidden] {
+  display: none;
+}
+
+.f-ic {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 64px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-large);
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.f-ic[aria-pressed="true"] {
+  background: var(--color-pressed);
+}
+
+.f-ic__img {
+  width: 36px;
+  height: 36px;
+}
+
+:root[data-theme="dark"] .f-ic__img {
+  filter: invert(1);
+}
+
+/* what is open: a red dot on the icon (same red as the line on the truck) */
+.f-ic__dot {
+  position: absolute;
+  top: 12px;
+  left: calc(50% + 12px);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-door-open);
+  box-shadow: 0 0 0 2px var(--color-surface-card);
+}
+
+/* the words for the tapped icon */
+.f-icons-tip {
+  margin: 8px var(--page-gutter) 0;
+  padding: 10px 14px;
+  border-radius: var(--radius-large);
+  background: var(--color-surface-card);
+  font-size: var(--body-size);
+  line-height: var(--body-line-height);
+  letter-spacing: var(--body-letter-spacing);
+}
+
+.f-icons-tip strong {
+  font-weight: 600;
+}
+
+.f-icons + .f-icons-tip[hidden] + .direction,
+.f-icons-tip + .direction {
+  margin-top: 12px;
+}
+
+/* whole truck is drawn smaller: thicker marks so they read the same as in the cab view */
+.f-stage[data-frame="whole"] .door-overlay__line { stroke-width: 26; }
+.f-stage[data-frame="whole"] .alarm-wave { stroke-width: 14; }
