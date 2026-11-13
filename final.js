@@ -106,9 +106,8 @@
       : unlocked.length
         ? { icon: "lock-unlocked.svg", label: "Dörrar", value: unlocked.length > 1 ? "Olåsta" : `${unlocked[0].name} olåst`, when: unlocked[0].changed }
         : { icon: "lock-locked.svg", label: "Dörrar", value: "Låsta", when: latest(S.doors) },
-    win.length
-      ? { icon: "window-open.svg", label: "Fönster", value: `${win[0].name} öppet`, when: S.windows.changed, alert: true }
-      : { icon: "window.svg", label: "Fönster", value: "Stängda", when: S.windows.changed },
+    // Windows have no row: an open window comes as a push notification (notis.html) and then shows
+    // on the drawing (red dashes) and in the reminder box. Car apps alert the same way (Volvo Cars).
     { icon: S.alarm.on ? "motion-sensor-cab.svg" : "motion-sensor-cab-disabled.svg", label: "Larm", value: S.alarm.on ? "På" : "Av", when: S.alarm.changed },
   ];
 
@@ -118,6 +117,7 @@
     $("f-status").hidden = true;
     const ul = $("f-icons");
     ul.hidden = false;
+    ul.style.gridTemplateColumns = `repeat(${items.length}, 1fr)`;
     const tip = $("f-icons-tip");
     const show = (i) => {
       ul.querySelectorAll("button").forEach((b, j) => b.setAttribute("aria-pressed", String(j === i)));

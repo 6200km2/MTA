@@ -11,6 +11,9 @@
   width: 340px;
   height: 286px;
   overflow: hidden;
+  /* the drawing fades out under the bunk instead of being cut off */
+  -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 72%, transparent 100%);
   cursor: default;
   -webkit-tap-highlight-color: transparent;
 }
