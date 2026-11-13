@@ -15,14 +15,6 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.f-stage[data-zoom="whole"] {
-  cursor: zoom-in;
-}
-
-.f-stage:focus-visible {
-  outline: 2px solid var(--color-text-primary);
-  outline-offset: 2px;
-}
 
 /* the 1024 x 1536 drawing, moved by transform */
 .f-zoom {
@@ -34,17 +26,8 @@
   transform-origin: 0 0;
   /* cab: the same crop as C (x 60-964, scale 0.376) */
   transform: translate(-22.6px, 0) scale(0.376);
-  transition: transform 0.6s cubic-bezier(0.3, 0.7, 0.2, 1);
 }
 
-/* whole truck: fits the height (1536 x 0.186 = 286), centred */
-.f-stage[data-zoom="whole"] .f-zoom {
-  transform: translate(74.8px, 0) scale(0.1862);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .f-zoom { transition: none; }
-}
 
 .f-zoom__image,
 .f-zoom__overlay {
@@ -55,59 +38,18 @@
   max-width: none;
 }
 
-:root[data-theme="dark"] .f-zoom__image {
+:root[data-theme="dark"] [data-view="line"] .f-zoom__image {
   filter: invert(1);
 }
+
+/* photo: the cab floor is dark, so the waves are white */
+[data-view="photo"] .alarm-wave { stroke: #ffffff; }
+[data-view="photo"] .alarm-wave__dot { fill: #ffffff; }
 
 /* open window: the glass part of the door edge, dashed */
 .f-window {
   stroke-dasharray: 22 14;
   stroke-linecap: butt;
-}
-
-/* ---------- Minimap: the whole truck in the corner while the cab is big ---------- */
-.f-mini {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 48px;
-  height: 72px;
-  padding: 0;
-  border: 1px solid var(--color-divider);
-  border-radius: var(--radius-large);
-  background: var(--color-surface-card);
-  overflow: hidden;
-  cursor: zoom-out;
-  transition: opacity 0.25s ease;
-}
-
-.f-stage[data-zoom="whole"] .f-mini {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.f-mini__overlay {
-  position: absolute;
-  inset: 4px;
-  width: calc(100% - 8px);
-  height: calc(100% - 8px);
-}
-
-.f-mini__cab {
-  fill: none;
-  stroke: var(--color-text-primary);
-  stroke-width: 1.8;
-}
-
-.f-mini__rest {
-  fill: none;
-  stroke: var(--color-text-secondary);
-  stroke-width: 1.2;
-  opacity: 0.6;
-}
-
-.f-mini__dot {
-  fill: var(--color-door-open);
 }
 
 /* the open door / window in the row: red, like the line on the drawing */
@@ -161,4 +103,80 @@
   font-size: var(--body-size);
   font-weight: 600;
   cursor: pointer;
+}
+
+/* ---------- Icons only (?layout=icons): the state is in the icon, words on tap ---------- */
+.f-icons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 4px var(--page-gutter) 0;
+  padding: 8px 0;
+  list-style: none;
+  border-radius: var(--radius-large);
+  background: var(--color-surface-card);
+}
+
+.f-icons[hidden],
+.f-icons-tip[hidden] {
+  display: none;
+}
+
+.f-ic {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 64px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-large);
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.f-ic[aria-pressed="true"] {
+  background: var(--color-pressed);
+}
+
+.f-ic__img {
+  width: 36px;
+  height: 36px;
+}
+
+:root[data-theme="dark"] .f-ic__img {
+  filter: invert(1);
+}
+
+/* what is open: a red dot on the icon (same red as the line on the truck) */
+.f-ic__dot {
+  position: absolute;
+  top: 12px;
+  left: calc(50% + 12px);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-door-open);
+  box-shadow: 0 0 0 2px var(--color-surface-card);
+}
+
+/* the words for the tapped icon */
+.f-icons-tip {
+  margin: 8px var(--page-gutter) 0;
+  padding: 10px 14px;
+  border-radius: var(--radius-large);
+  background: var(--color-surface-card);
+  font-size: var(--body-size);
+  line-height: var(--body-line-height);
+  letter-spacing: var(--body-letter-spacing);
+}
+
+.f-icons-tip strong {
+  font-weight: 600;
+}
+
+.f-icons + .f-icons-tip[hidden] + .direction,
+.f-icons-tip + .direction {
+  margin-top: 12px;
 }

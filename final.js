@@ -1,5 +1,5 @@
 // Final design: C's layout + what the user test asked for. Status only (no lock / alarm buttons).
-//   ?s=2 all locked + alarm on · ?window=open driver window open · ?zoom=whole start on the whole truck
+//   ?s=2 all locked + alarm on · ?window=open driver window open · ?truck=photo · ?layout=icons (?tip=0)
 //   ?history=open · ?theme=dark | light
 (function () {
   const params = new URLSearchParams(location.search);
@@ -80,20 +80,10 @@
     ov.append(svg("circle", { class: "alarm-wave__dot", cx, cy, r: 14 }));
     [70, 120, 170].forEach((r, i) => [0, 180].forEach((m) => ov.append(svg("path", { class: `alarm-wave alarm-wave--${i + 1}`, d: `M${pt(r, m - 38)} A${r} ${r} 0 0 1 ${pt(r, m + 38)}` }))));
   }
-  // minimap: the cab outlined, a red dot where something is open
-  const mo = $("f-mini-overlay");
-  for (const d of open) mo.append(svg("circle", { class: "f-mini__dot", cx: d.id === "driver" ? 9 : 31, cy: 15, r: 3.2 }));
-  if (win.length && !open.length) mo.append(svg("circle", { class: "f-mini__dot", cx: 9, cy: 12, r: 3.2 }));
-
-  // Cab big by default (C); tap the corner = whole truck (B), tap the picture = back to the cab
-  const stage = $("f-stage");
-  const setWhole = (on) => {
-    stage.dataset.zoom = on ? "whole" : "cab";
-    stage.setAttribute("aria-label", on ? "Hela lastbilen. Tryck för att visa hytten" : "Hytten");
-  };
-  stage.addEventListener("click", (e) => { if (!e.target.closest(".f-mini")) setWhole(false); });
-  $("f-mini").addEventListener("click", (e) => { e.stopPropagation(); setWhole(true); });
-  setWhole(params.get("zoom") === "whole");
+  // Picture: C's line drawing, or the photo (?truck=photo). Same crop of the cab.
+  const view = params.get("truck") === "photo" ? "photo" : "line";
+  $("f-stage").dataset.view = view;
+  if (view === "photo") document.querySelector(".f-zoom__image").src = "assets/images/truck-top-photo.png";
 
   // ---------- 2. Rows: C's look, the time = when that state began ----------
   const row = (icon, label, value, when, alert) => {
@@ -110,18 +100,49 @@
     return li;
   };
   const latest = (list) => list.map((x) => x.changed).sort((p, q) => (p[0] === q[0] ? (p[1] < q[1] ? 1 : -1) : p[0] === "Idag" ? -1 : 1))[0];
-  const rows = [
+  const items = [
     open.length
-      ? row("cab-door-left.svg", "Dörrar", open.length > 1 ? "Båda öppna" : `${open[0].name} öppen`, open[0].changed, true)
+      ? { icon: "cab-door-left.svg", label: "Dörrar", value: open.length > 1 ? "Båda öppna" : `${open[0].name} öppen`, when: open[0].changed, alert: true }
       : unlocked.length
-        ? row("lock-unlocked.svg", "Dörrar", unlocked.length > 1 ? "Olåsta" : `${unlocked[0].name} olåst`, unlocked[0].changed)
-        : row("lock-locked.svg", "Dörrar", "Låsta", latest(S.doors)),
+        ? { icon: "lock-unlocked.svg", label: "Dörrar", value: unlocked.length > 1 ? "Olåsta" : `${unlocked[0].name} olåst`, when: unlocked[0].changed }
+        : { icon: "lock-locked.svg", label: "Dörrar", value: "Låsta", when: latest(S.doors) },
     win.length
-      ? row("window-open.svg", "Fönster", `${win[0].name} öppet`, S.windows.changed, true)
-      : row("window.svg", "Fönster", "Stängda", S.windows.changed),
-    row(S.alarm.on ? "motion-sensor-cab.svg" : "motion-sensor-cab-disabled.svg", "Larm", S.alarm.on ? "På" : "Av", S.alarm.changed),
+      ? { icon: "window-open.svg", label: "Fönster", value: `${win[0].name} öppet`, when: S.windows.changed, alert: true }
+      : { icon: "window.svg", label: "Fönster", value: "Stängda", when: S.windows.changed },
+    { icon: S.alarm.on ? "motion-sensor-cab.svg" : "motion-sensor-cab-disabled.svg", label: "Larm", value: S.alarm.on ? "På" : "Av", when: S.alarm.changed },
   ];
-  rows.forEach((li, i) => { if (i < rows.length - 1) li.append(img("divider-line.svg", "list-item__divider")); $("f-status").append(li); });
+
+  if (params.get("layout") === "icons") {
+    // Icons only (the simplest): the icon itself shows the state, a red dot marks what is open.
+    // Tap an icon to read it in words ("Förardörr öppen · Idag 09:35"). ?tip=0|1|2 opens one.
+    $("f-status").hidden = true;
+    const ul = $("f-icons");
+    ul.hidden = false;
+    const tip = $("f-icons-tip");
+    const show = (i) => {
+      ul.querySelectorAll("button").forEach((b, j) => b.setAttribute("aria-pressed", String(j === i)));
+      if (i == null) { tip.hidden = true; return; }
+      const it = items[i];
+      tip.replaceChildren(el("strong", null, `${it.label}: `), document.createTextNode(`${it.value.toLowerCase()} · ${stamp(it.when)}`));
+      tip.dataset.col = String(i);
+      tip.hidden = false;
+    };
+    items.forEach((it, i) => {
+      const li = el("li");
+      const b = el("button", "f-ic");
+      b.type = "button";
+      b.setAttribute("aria-label", `${it.label}: ${it.value}`);
+      b.append(img(it.icon, "f-ic__img"));
+      if (it.alert) b.append(el("span", "f-ic__dot"));
+      b.addEventListener("click", () => show(b.getAttribute("aria-pressed") === "true" ? null : i));
+      li.append(b);
+      ul.append(li);
+    });
+    show(params.has("tip") ? Number(params.get("tip")) : null);
+  } else {
+    const rows = items.map((it) => row(it.icon, it.label, it.value, it.when, it.alert));
+    rows.forEach((li, i) => { if (i < rows.length - 1) li.append(img("divider-line.svg", "list-item__divider")); $("f-status").append(li); });
+  }
 
   // ---------- 3. Reminder (C's info box), only when something needs doing ----------
   const toFix = [...open, ...unlocked];
