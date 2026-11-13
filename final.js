@@ -173,7 +173,6 @@
     c.append(box, t);
     li.append(c);
     if (i < recent.length - 1) li.append(img("divider-line.svg", "list-item__divider"));
-    if (e.alarm) li.classList.add("f-event--alarm");
     $("f-recent").append(li);
   });
 
@@ -202,7 +201,6 @@
       c.append(box, t);
       li.append(c);
       if (i < g.items.length - 1) li.append(img("divider-line.svg", "list-item__divider"));
-      if (e.alarm) li.classList.add("f-event--alarm");
       ul.append(li);
     });
     sec.append(ul);
