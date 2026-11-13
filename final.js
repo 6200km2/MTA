@@ -160,11 +160,22 @@
     $("f-action-close").addEventListener("click", () => { $("f-action").hidden = true; });
   }
 
-  // Historik row: the latest alarm from today or yesterday, else that nothing went off
-  const recentAlarm = S.events.find((e) => e.alarm && /^(Idag|Igår)$/.test(e.when[0]));
-  const meta = $("f-history-meta");
-  meta.textContent = recentAlarm ? `Larmet gick ${recentAlarm.when[0].toLowerCase()} ${recentAlarm.when[1]}` : "Inget larm idag eller igår";
-  if (recentAlarm) meta.dataset.alert = "true";
+  // Senaste: two events, an alarm that went off today / yesterday first, then the newest
+  const recentAlarm = S.events.filter((e) => e.alarm && /^(Idag|Igår)$/.test(e.when[0]));
+  const recent = [...recentAlarm, ...S.events.filter((e) => !recentAlarm.includes(e))].slice(0, 2);
+  recent.forEach((e, i) => {
+    const li = el("li", "list-item");
+    const c = el("div", "list-item__content");
+    const box = el("div", "list-item__icon");
+    box.append(img(e.icon));
+    const t = el("div", "list-item__text");
+    t.append(el("p", "list-item__title", e.title), el("p", "list-item__meta", `${e.when[0]} • ${e.when[1]}`));
+    c.append(box, t);
+    li.append(c);
+    if (i < recent.length - 1) li.append(img("divider-line.svg", "list-item__divider"));
+    if (e.alarm) li.classList.add("f-event--alarm");
+    $("f-recent").append(li);
+  });
 
   // ---------- 4. History page: by day, who did it, kept 30 days, share ----------
   const hist = $("f-history");

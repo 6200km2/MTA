@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="light dark" />
   <title>Larm och lås</title>
   <link rel="stylesheet" href="styles.css?v=20261111h" />
-  <link rel="stylesheet" href="final.css?v=20261113u" />
+  <link rel="stylesheet" href="final.css?v=20261113x" />
 </head>
 <body>
   <!-- Final design: C's layout (the steadiest in the test) with what the test asked for:
@@ -52,13 +52,12 @@
       </div>
 
       <div class="history">
-        <!-- Historik + one line that answers "has anything happened tonight?" (task 3 in the test) -->
-        <button class="history-link f-history-link" type="button" id="f-all">
-          <span class="f-history-link__text">
-            <span class="f-history-link__title">Historik</span>
-            <span class="f-history-link__meta" id="f-history-meta"></span>
-          </span>
-        </button>
+        <!-- Senaste: the two latest events (an alarm that went off first), as tested in C; the rest on the Historik page -->
+        <section class="list-group">
+          <p class="list-group__label">Senaste</p>
+          <ul class="list" id="f-recent"></ul>
+        </section>
+        <button class="history-link" type="button" id="f-all">Visa all historik</button>
       </div>
     </main>
 
@@ -75,6 +74,6 @@
     </section>
   </div>
 
-  <script src="final.js?v=20261113v"></script>
+  <script src="final.js?v=20261113w"></script>
 </body>
 </html>
