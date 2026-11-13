@@ -72,18 +72,9 @@
     const g = d.open ? DOOR_OPEN[d.id] : !d.locked ? DOOR_EDGE[d.id] : null;
     if (g) ov.append(svg("line", { class: `door-overlay__line${d.open ? " door-overlay__line--open" : ""}`, x1: g[0], y1: g[1], x2: g[2], y2: g[3] }));
   }
-  // Open window: a red badge with the window icon, pinned to the driver's side window. A dashed
-  // line on the door edge was too hard to read (the window is not visible from above).
-  if (win.length) {
-    const g = svg("g", { class: "f-winbadge" });
-    g.append(svg("line", { class: "f-winbadge__pin", x1: 222, y1: 440, x2: 170, y2: 440 }));
-    g.append(svg("circle", { class: "f-winbadge__plate", cx: 128, cy: 440, r: 56 }));
-    const icon = svg("g", { transform: "translate(97.4 409.4) scale(2.55)" });
-    icon.append(svg("path", { class: "f-winbadge__glyph", d: "M2.25 4.75H13.1C14.6 4.75 15.95 5.55 16.7 6.85L21.6 19.25H4.05L2.25 4.75Z" }));
-    icon.append(svg("path", { class: "f-winbadge__glyph", d: "M3.2 12.25H12.3C13.8 12.25 15.15 13.05 15.9 14.35L18.1 19.25" }));
-    g.append(icon);
-    ov.append(g);
-  }
+  // Open window: a short red line along the driver's side, where the glass is, in the same style as
+  // the door marks (no icon). Straight along the cab = window; swung out = door.
+  if (win.length) ov.append(svg("line", { class: "door-overlay__line door-overlay__line--open f-window", x1: 196, y1: 360, x2: 196, y2: 470 }));
   // Alarm: waves only when it is on; nothing when it is off ("Larm – Av" in the row says it)
   if (S.alarm.on) {
     const cx = 512, cy = 480;

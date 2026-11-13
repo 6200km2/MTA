@@ -64,11 +64,8 @@
 [data-view="photo"] .alarm-wave { stroke: #ffffff; }
 [data-view="photo"] .alarm-wave__dot { fill: #ffffff; }
 
-/* open window: red badge with the window icon, pinned to the driver's side */
-.f-winbadge__pin { stroke: var(--color-door-open); stroke-width: 10; stroke-linecap: round; }
-.f-winbadge__plate { fill: var(--color-door-open); }
-.f-winbadge__glyph { fill: none; stroke: #ffffff; stroke-width: 1.6; stroke-linejoin: round; }
-.f-stage[data-frame="whole"] .f-winbadge__pin { stroke-width: 16; }
+/* open window: a short red line just outside the driver's side, same weight as the door marks */
+.f-window { stroke-linecap: round; }
 
 /* the open door / window in the row: red, like the line on the drawing */
 .status-row__value[data-alert] {
