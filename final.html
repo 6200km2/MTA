@@ -6,13 +6,13 @@
   <meta name="color-scheme" content="light dark" />
   <title>Larm och lås</title>
   <link rel="stylesheet" href="styles.css?v=20261111h" />
-  <link rel="stylesheet" href="final.css?v=20261113b" />
+  <link rel="stylesheet" href="final.css?v=20261113k" />
 </head>
 <body>
   <!-- Final design after the user test (5 students, 2026-11-12). See README / the results doc.
        One screen (C) + top view of the truck with the red open door (B), no check mark next to the
        time (A): each state says when it happened, and "Uppdaterad" is the time the app checked.
-       ?s=2 all locked, alarm on · ?truck=photo photo instead of line drawing · ?theme=dark|light -->
+       ?s=2 all locked, alarm on · ?window=open driver window open · ?history=open · ?truck=photo photo instead of line drawing · ?theme=dark|light -->
   <div class="screen">
     <header class="app-bar">
       <nav class="nav-bar">
@@ -25,7 +25,7 @@
     </header>
 
     <main class="content f-content">
-      <!-- 1. The truck now: small top view, red line on an open door, sensor badge in the cab -->
+      <!-- 1. The truck now: small top view, red line on an open door, alarm waves in the cab when it is on -->
       <div class="f-hero" id="f-hero" data-view="line">
         <div class="f-figure">
           <img class="f-figure__image" id="f-image" src="assets/images/truck-top-line.png" alt="" draggable="false" />
@@ -33,38 +33,40 @@
         </div>
       </div>
 
-      <!-- 2. One sentence: is the truck safe? + when the app checked (not when something happened) -->
-      <section class="f-summary" aria-live="polite">
-        <h2 class="f-summary__title" id="f-summary-title"></h2>
-        <p class="f-summary__sub" id="f-summary-sub"></p>
-        <p class="f-updated">
-          <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5v3h-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
-          <span id="f-updated"></span>
-        </p>
-      </section>
+      <!-- When the app checked with the truck (named, not next to a state) -->
+      <p class="f-updated">
+        <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5v3h-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        <span id="f-updated"></span>
+      </p>
 
-      <!-- 3. What to do, only when something needs it -->
-      <div class="f-action" id="f-action" role="status" hidden>
-        <svg class="f-action__icon" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.5 18 17H2L10 2.5Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" /><path d="M10 8v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /><circle cx="10" cy="14.4" r="1" fill="currentColor" /></svg>
-        <p class="f-action__text" id="f-action-text"></p>
+      <!-- 2. Doors, windows and alarm in one card: state word + since when -->
+      <ul class="list f-status" id="f-status" aria-label="Dörrar, fönster och larm"></ul>
+
+      <!-- 3. Reminder (the original neutral info box, not a warning), only when something needs it -->
+      <div class="direction f-direction" id="f-action" hidden>
+        <p class="direction__text" id="f-action-text"></p>
+        <button class="direction__close" type="button" id="f-action-close" aria-label="Stäng">
+          <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
+        </button>
       </div>
 
-      <!-- 4. Doors and alarm: one screen, two clear sections (no tabs) -->
-      <section class="f-section" aria-labelledby="f-doors-label">
-        <h2 class="list-group__label f-section__label" id="f-doors-label">Dörrar</h2>
-        <ul class="list" id="f-doors"></ul>
-      </section>
-      <section class="f-section" aria-labelledby="f-alarm-label">
-        <h2 class="list-group__label f-section__label" id="f-alarm-label">Larm</h2>
-        <ul class="list" id="f-alarm"></ul>
-      </section>
-
-      <!-- 5. History by day, newest first; alarm events stand out -->
-      <section class="f-history" id="f-history" aria-label="Senaste"></section>
-      <a class="history-link f-history-link" href="#" id="f-all">Visa all historik (30 dagar)</a>
+      <!-- 4. History: one row; the events open on their own page (?history=open opens it) -->
+      <button class="history-link f-history-link" type="button" id="f-all">Historik</button>
     </main>
+
+    <!-- History page: all events by day, newest first; alarms that went off stand out -->
+    <section class="history-page" id="f-history-page" role="dialog" aria-modal="true" aria-labelledby="f-history-title" hidden>
+      <nav class="nav-bar history-page__bar">
+        <button class="icon-button" type="button" aria-label="Tillbaka" id="f-history-back">
+          <img src="assets/icons/chevron-left.svg" alt="" />
+        </button>
+        <h2 class="nav-bar__title" id="f-history-title">Historik</h2>
+        <img class="nav-bar__divider" src="assets/icons/divider-line-appbar.svg" alt="" />
+      </nav>
+      <div class="f-history" id="f-history"></div>
+    </section>
   </div>
 
-  <script src="final.js?v=20261113a"></script>
+  <script src="final.js?v=20261113n"></script>
 </body>
 </html>
